@@ -7,12 +7,18 @@ import {
   Param,
   Delete,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guard/guard.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth()
+@ApiTags('users')
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -22,8 +28,8 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Get()
-  @UseGuards(AuthGuard)
   findAll() {
     return this.usersService.findAll();
   }

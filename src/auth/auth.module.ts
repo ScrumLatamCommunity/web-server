@@ -5,6 +5,7 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants/jwtConstants';
 import { AuthGuard } from './guard/guard.guard';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthGuard } from './guard/guard.guard';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1d' },
     }),
+    PrismaModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, AuthGuard],

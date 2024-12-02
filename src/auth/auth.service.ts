@@ -6,13 +6,18 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { RegisterDto } from './dto/register.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userServices: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly prisma: PrismaService,
+  ) {
+    this.prisma.$connect();
+  }
 
   async signIn(email: string, pass: string) {
     const user = await this.userServices.findOneByEmail(email);
@@ -32,11 +37,15 @@ export class AuthService {
     };
   }
 
-  async signUp(email: string, pass: string) {
+  async signUp(userDto: RegisterDto) {
     try {
+      const { email, password: pass } = userDto;
+
       const hashPassword = await bcrypt.hash(pass, 10);
 
-      const user = this.userServices.create({ email, password: hashPassword });
+      const user = this.prisma.user.create({
+        data: { email, password: hashPassword },
+      });
 
       if (!user) {
         throw new InternalServerErrorException();
