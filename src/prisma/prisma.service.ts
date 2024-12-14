@@ -9,9 +9,9 @@ export class PrismaService
   async onModuleInit() {
     try {
       await this.$connect();
-      console.log('Connected to MongoDB');
+      console.log('Connected to PostgreSQL');
     } catch (error) {
-      console.error('Error connecting to MongoDB:', error);
+      console.error('Error connecting to PostgreSQL:', error);
     }
   }
   async onModuleDestroy() {

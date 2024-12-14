@@ -21,7 +21,7 @@ export class AuthService {
 
   async signIn(email: string, pass: string) {
     const user = await this.userServices.findOneByEmail(email);
-    console.log(user);
+
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -30,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.id, email: user.email };
+    const payload = { sub: user.id, name: user.name, email: user.email };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -39,12 +39,12 @@ export class AuthService {
 
   async signUp(userDto: RegisterDto) {
     try {
-      const { email, password: pass } = userDto;
+      const { email, name, password: pass } = userDto;
 
       const hashPassword = await bcrypt.hash(pass, 10);
 
       const user = this.prisma.user.create({
-        data: { email, password: hashPassword },
+        data: { name, email, password: hashPassword },
       });
 
       if (!user) {

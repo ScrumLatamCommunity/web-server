@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -10,9 +11,15 @@ export class UsersService {
     this.prisma.$connect();
   }
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
     try {
-      return this.prisma.user.create({ data: createUserDto });
+      const { name, email, password: pass } = createUserDto;
+
+      const hashPassword = await bcrypt.hash(pass, 10);
+
+      return this.prisma.user.create({
+        data: { name, email, password: hashPassword },
+      });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

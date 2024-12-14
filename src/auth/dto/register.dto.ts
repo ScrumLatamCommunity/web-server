@@ -6,6 +6,10 @@ import {
 } from 'class-validator';
 
 export class RegisterDto {
+  @IsNotEmpty({ message: 'The name is required' })
+  @MaxLength(100, { message: 'The name must be less than 100 characters' })
+  name: string;
+
   @IsEmail({}, { message: 'The email is not valid' })
   @IsNotEmpty({ message: 'The email is required' })
   @MaxLength(254, { message: 'The email must be less than 254 characters' })
