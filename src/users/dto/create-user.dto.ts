@@ -6,9 +6,19 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNotEmpty({ message: 'The name is required' })
-  @MaxLength(100, { message: 'The name must be less than 100 characters' })
-  name: string;
+  @IsNotEmpty({ message: 'The first name is required' })
+  @MaxLength(100, {
+    message: 'The first name must be less than 100 characters',
+  })
+  firstName: string;
+
+  @IsNotEmpty({ message: 'The last name is required' })
+  @MaxLength(100, { message: 'The last name must be less than 100 characters' })
+  lastName: string;
+
+  @IsNotEmpty({ message: 'The username is required' })
+  @MaxLength(50, { message: 'The username must be less than 50 characters' })
+  username: string;
 
   @IsEmail({}, { message: 'The email is not valid' })
   @IsNotEmpty({ message: 'The email is required' })
@@ -28,4 +38,12 @@ export class CreateUserDto {
   )
   @MaxLength(128, { message: 'The password must be less than 128 characters' })
   password: string;
+
+  @IsNotEmpty({ message: 'The country is required' })
+  @MaxLength(100, { message: 'The country must be less than 100 characters' })
+  country: string;
+
+  @IsNotEmpty({ message: 'The membership is required' })
+  @MaxLength(50, { message: 'The membership must be less than 50 characters' })
+  membership: string;
 }

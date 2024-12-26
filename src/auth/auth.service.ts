@@ -30,7 +30,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.id, name: user.name, email: user.email };
+    const payload = { sub: user.id, email: user.email };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -39,12 +39,28 @@ export class AuthService {
 
   async signUp(userDto: RegisterDto) {
     try {
-      const { email, name, password: pass } = userDto;
+      const {
+        firstName,
+        lastName,
+        username,
+        email,
+        password: pass,
+        country,
+        membership,
+      } = userDto;
 
       const hashPassword = await bcrypt.hash(pass, 10);
 
       const user = this.prisma.user.create({
-        data: { name, email, password: hashPassword },
+        data: {
+          firstName,
+          lastName,
+          username,
+          country,
+          membership,
+          email,
+          password: hashPassword,
+        },
       });
 
       if (!user) {

@@ -1,6 +1,10 @@
 export class User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  username: string;
   email: string;
   password: string;
+  country: string;
+  membership: string;
 }
