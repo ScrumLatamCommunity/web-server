@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "News" ALTER COLUMN "status" DROP DEFAULT,
+ALTER COLUMN "updated_at" DROP DEFAULT;
