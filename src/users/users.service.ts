@@ -40,7 +40,7 @@ export class UsersService {
       await this.mailerService.sendMail(
         email,
         '¡Bienvenido a nuestra plataforma!',
-        name,
+        `${firstName} ${lastName}`,
       );
 
       this.logger.log(`Enviado a ${email}`);
