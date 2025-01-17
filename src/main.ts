@@ -11,6 +11,15 @@ async function bootstrap() {
     logger: new LoggerService(),
   });
 
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Content-Range', 'X-Total-Count'],
+    credentials: true,
+    maxAge: 3600,
+  });
+
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(

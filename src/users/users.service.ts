@@ -23,7 +23,15 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const { name, email, password: pass } = createUserDto;
+      const {
+        firstName,
+        lastName,
+        username,
+        email,
+        password: pass,
+        country,
+        membership,
+      } = createUserDto;
 
       const hashPassword = await bcrypt.hash(pass, 10);
 
@@ -38,7 +46,15 @@ export class UsersService {
       this.logger.log(`Enviado a ${email}`);
 
       return this.prisma.user.create({
-        data: { name, email, password: hashPassword },
+        data: {
+          firstName,
+          lastName,
+          username,
+          email,
+          country,
+          membership,
+          password: hashPassword,
+        },
       });
     } catch (error) {
       throw new InternalServerErrorException(error);
