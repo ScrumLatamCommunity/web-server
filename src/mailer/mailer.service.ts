@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { welcomeTemplate } from './templates/email-templates';
+import { envs } from 'src/config/envs';
 
 @Injectable()
 export class MailerService {
@@ -13,18 +14,16 @@ export class MailerService {
 
   constructor() {
     this.logger.log('Variables de entorno:', {
-      NODE_ENV: process.env.NODE_ENV,
-      MAIL_USER: process.env.MAIL_USER ? 'Configurado' : 'No configurado',
-      MAIL_PASSWORD: process.env.MAIL_PASSWORD
-        ? 'Configurado'
-        : 'No configurado',
-      MAIL_FROM: process.env.MAIL_FROM,
+      NODE_ENV: envs.nodeEnv,
+      MAIL_USER: envs.mailUser ? 'Configurado' : 'No configurado',
+      MAIL_PASSWORD: envs.mailPassword ? 'Configurado' : 'No configurado',
+      MAIL_FROM: envs.mailUser,
     });
-    const mailUser = process.env.MAIL_USER;
-    const mailPassword = process.env.MAIL_PASSWORD;
-    const isProduction = process.env.NODE_ENV === 'production';
+    const mailUser = envs.mailUser;
+    const mailPassword = envs.mailPassword;
+    const isProduction = envs.nodeEnv === 'production';
 
-    this.logger.log(`Ambiente actual: ${process.env.NODE_ENV}`);
+    this.logger.log(`Ambiente actual: ${envs.nodeEnv}`);
     this.logger.log(
       `Usando configuración de ${isProduction ? 'producción' : 'desarrollo'}`,
     );
@@ -51,29 +50,7 @@ export class MailerService {
 
       this.logger.log('Configuración de Gmail establecida correctamente');
     } else {
-      // Configuración para pruebas con Ethereal
-      this.setupTestTransport();
-    }
-  }
-
-  private async setupTestTransport() {
-    try {
-      // Crear cuenta de prueba Ethereal
-      const testAccount = await nodemailer.createTestAccount();
-      this.logger.log('Cuenta de prueba Ethereal creada:', testAccount.user);
-
-      this.transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
-    } catch (error) {
-      this.logger.error('Error al configurar el transporte de prueba:', error);
-      throw error;
+      this.logger.log('Configuración de desarrollo establecida correctamente');
     }
   }
 
@@ -86,8 +63,10 @@ export class MailerService {
 
       const htmlContent = welcomeTemplate(userName);
 
+      this.logger.log(`${envs.mailFrom} - ${to} - ${subject}`);
+
       const mailOptions = {
-        from: process.env.MAIL_FROM || '"No Reply" <no-reply@scrumlatam.com>',
+        from: envs.mailFrom || '"No Reply" <no-reply@scrumlatam.com>',
         to,
         subject,
         html: htmlContent,
@@ -109,7 +88,7 @@ export class MailerService {
 
       return info;
     } catch (error) {
-      this.logger.error('Error al enviar el correo:', error);
+      this.logger.error(`Error al enviar el correo: ${error.message}`);
       throw new InternalServerErrorException(
         'Error al enviar el correo',
         error.message,

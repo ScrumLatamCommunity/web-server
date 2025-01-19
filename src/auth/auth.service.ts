@@ -2,19 +2,24 @@ import {
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MailerService } from 'src/mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly userServices: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService,
   ) {
     this.prisma.$connect();
   }
@@ -65,6 +70,19 @@ export class AuthService {
 
       if (!user) {
         throw new InternalServerErrorException();
+      }
+
+      try {
+        await this.mailerService.sendMail(
+          (await user).email,
+          'Bienvenido a la plataforma',
+          (await user).firstName,
+        );
+      } catch (mailError) {
+        throw new InternalServerErrorException(
+          'Error al enviar el correo de bienvenida',
+          mailError.message,
+        );
       }
 
       return user;

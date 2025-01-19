@@ -1,23 +1,13 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { MailerService } from 'src/mailer/mailer.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
-
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly mailerService: MailerService,
-  ) {
+  constructor(private readonly prisma: PrismaService) {
     this.prisma.$connect();
   }
 
@@ -34,16 +24,6 @@ export class UsersService {
       } = createUserDto;
 
       const hashPassword = await bcrypt.hash(pass, 10);
-
-      this.logger.log(`enviando correo ${email}`);
-
-      await this.mailerService.sendMail(
-        email,
-        '¡Bienvenido a nuestra plataforma!',
-        `${firstName} ${lastName}`,
-      );
-
-      this.logger.log(`Enviado a ${email}`);
 
       return this.prisma.user.create({
         data: {
