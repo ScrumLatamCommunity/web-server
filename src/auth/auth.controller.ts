@@ -1,4 +1,11 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
@@ -19,5 +26,13 @@ export class AuthController {
   @Post('register')
   signUp(@Body() signInDto: RegisterDto) {
     return this.authService.signUp(signInDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Put('onboarding')
+  onboarding(
+    @Body() { email, completed }: { email: string; completed: boolean },
+  ) {
+    return this.authService.onboarding(email, completed);
   }
 }

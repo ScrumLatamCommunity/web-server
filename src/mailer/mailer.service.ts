@@ -4,8 +4,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { welcomeTemplate } from './templates/email-templates';
 import { envs } from 'src/config/envs';
+import { EmailTemplateType, emailTemplates } from './templates/email-templates';
 
 @Injectable()
 export class MailerService {
@@ -54,14 +54,16 @@ export class MailerService {
     }
   }
 
-  async sendMail(to: string, subject: string, userName: string): Promise<void> {
+  async sendMail(
+    to: string,
+    subject: string,
+    htmlContent: string,
+  ): Promise<void> {
     try {
       this.logger.log('==========================================');
       this.logger.log('Iniciando proceso de envío de correo');
       this.logger.log(`Destinatario: ${to}`);
       this.logger.log(`Asunto: ${subject}`);
-
-      const htmlContent = welcomeTemplate(userName);
 
       this.logger.log(`${envs.mailFrom} - ${to} - ${subject}`);
 
@@ -94,5 +96,19 @@ export class MailerService {
         error.message,
       );
     }
+  }
+
+  async sendEmail(
+    to: string,
+    templateType: EmailTemplateType,
+    params: any,
+  ): Promise<void> {
+    const template = emailTemplates[templateType];
+
+    if (!template) {
+      throw new Error(`Template ${templateType} not found`);
+    }
+
+    await this.sendMail(to, template.subject, template.template(params));
   }
 }

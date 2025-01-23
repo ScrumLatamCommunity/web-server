@@ -1,55 +1,89 @@
-export const welcomeTemplate = (userName: string): string => `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido</title>
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
-    <table align="center" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
-        <!-- Header -->
-        <tr>
-            <td align="center" style="background-color: #ff735c; padding: 20px;">
-                <h1 style="color: #ffffff; font-size: 28px; margin: 0;">¡Bienvenido a Scrum Latam!</h1>
-            </td>
-        </tr>
+export enum EmailTemplateType {
+  WELCOME_REGISTER = 'WELCOME_REGISTER',
+  COMPLETED_REGISTER = 'COMPLETED_REGISTER',
+  // Aquí puedes agregar más tipos de templates
+}
 
-        <!-- Intro Section -->
-        <tr>
-            <td style="padding: 20px; text-align: center;">
-                <p style="color: #333333; font-size: 18px; margin: 0 0 10px;">¡Hola, <strong>${userName}</strong>!</p>
-                <p style="color: #333333; font-size: 16px; margin: 0;">Nos alegra tenerte como parte de nuestra comunidad de metodologías ágiles.</p>
-            </td>
-        </tr>
+interface EmailTemplate {
+  subject: string;
+  template: (params: { userName: string; url?: string }) => string;
+}
 
-        <!-- Content Section -->
-        <tr>
-            <td style="padding: 20px;">
-                <p style="color: #333333; font-size: 16px;">Esto es lo que puedes hacer ahora que eres parte de nuestra comunidad:</p>
-                <ul style="color: #333333; font-size: 16px; line-height: 1.6;">
-                    <li>🌐 <strong>Explorar recursos y documentación:</strong> Encuentra guías, herramientas y contenido exclusivo para mejorar tus habilidades ágiles.</li>
-                    <li>📅 <strong>Participar en eventos y entrenamientos:</strong> Inscríbete en nuestras capacitaciones y talleres colaborativos.</li>
-                    <li>🤝 <strong>Conectar con otros miembros:</strong> Forma parte de una red de profesionales apasionados por la agilidad.</li>
-                </ul>
-            </td>
-        </tr>
-
-        <!-- CTA Button -->
-        <tr>
-            <td align="center" style="padding: 20px;">
-                <a href="#" style="background-color: #ff735c; color: #ffffff; text-decoration: none; padding: 12px 20px; border-radius: 5px; font-size: 16px;">Explorar la Comunidad</a>
-            </td>
-        </tr>
-
-        <!-- Footer -->
-        <tr>
-            <td align="center" style="background-color: #1d3557; padding: 20px;">
-                <p style="color: #ffffff; font-size: 14px; margin: 0;">Si tienes preguntas, escríbenos a <a href="mailto:contacto@scrumlatam.com" style="color: #ff735c; text-decoration: none;">contacto@scrumlatam.com</a></p>
-                <p style="color: #ffffff; font-size: 14px; margin: 5px 0 0;">¡Gracias por ser parte de Scrum Latam!</p>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
-`;
+export const emailTemplates: Record<EmailTemplateType, EmailTemplate> = {
+  [EmailTemplateType.WELCOME_REGISTER]: {
+    subject: '¡Bienvenido a Scrum Latam! - Completa tu Onboarding',
+    template: ({ userName, url }) => `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bienvenido a Scrum Latam Comunidad</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: rgb(255,255,255);
+                background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(242,92,68,1) 100%);
+                font-family: Arial, sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="https://firebasestorage.googleapis.com/v0/b/scrum-latam-imgs.appspot.com/o/navbar%2FScrum%20logo%20principal.svg?alt=media&token=d8cce1e3-c821-4e52-9596-289f17c63203" alt="Scrum Latam Comunidad" style="width: 200px;">
+            </div>
+            <h1 style="color: #1d3557; font-size: 32px; text-align: center; margin-bottom: 30px;">¡Bienvenido a Scrum<br>Latam Comunidad!<br> ${userName.toUpperCase()}</h1>
+            <div style=" padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="color: #1d3557; font-weight: bold; margin-bottom: 20px; text-align: center;">¡Estamos emocionados de tenerte con nosotros!</p>
+                <p style="color: #1d3557; font-weight: bold; margin-bottom: 20px; text-align: center;">Para comenzar tu experiencia, necesitamos que completes un breve proceso de onboarding. Este paso es escencial para personalizar tu experiencia en nuestra plataforma.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${url}" style="background-color: #f25c44; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">COMENZAR ONBOARDING</a>
+                </div>
+                <p style="color: #1d3557; font-weight: bold; margin-top: 30px; text-align: center;">Si no solicitaste el registro, escríbenos al centro de ayuda:<br>scrumlatam@gmail.com</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `,
+  },
+  [EmailTemplateType.COMPLETED_REGISTER]: {
+    subject: '¡Registro Completado con Éxito! - Scrum Latam',
+    template: ({ userName, url }) => `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registro Completado - Scrum Latam Comunidad</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: rgb(255,255,255);
+                background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(242,92,68,1) 100%);
+                font-family: Arial, sans-serif;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="max-width: 600px; margin: 40px auto; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <img src="https://firebasestorage.googleapis.com/v0/b/scrum-latam-imgs.appspot.com/o/navbar%2FScrum%20logo%20principal.svg?alt=media&token=d8cce1e3-c821-4e52-9596-289f17c63203" alt="Scrum Latam Comunidad" style="width: 200px;">
+            </div>
+            <h1 style="color: #1d3557; font-size: 32px; text-align: center; margin-bottom: 30px;">¡Registro Completado!<br>${userName.toUpperCase()}</h1>
+            <div style="padding: 30px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="color: #1d3557; font-weight: bold; margin-bottom: 20px; text-align: center;">¡Felicitaciones! Has completado exitosamente tu registro en Scrum Latam Comunidad</p>
+                <p style="color: #1d3557; font-weight: bold; margin-bottom: 20px; text-align: center;">Ya puedes acceder a la plataforma utilizando tus credenciales</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${url}" style="background-color: #f25c44; color: white; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">INICIAR SESIÓN</a>
+                </div>
+                <p style="color: #1d3557; font-weight: bold; margin-top: 30px; text-align: center;">¿Necesitas ayuda? Escríbenos al centro de ayuda:<br>scrumlatam@gmail.com</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `,
+  },
+};
