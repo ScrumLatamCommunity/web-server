@@ -2,6 +2,7 @@ import {
   IsEmail,
   IsNotEmpty,
   IsStrongPassword,
+  IsBoolean,
   MaxLength,
 } from 'class-validator';
 
@@ -46,4 +47,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'The membership is required' })
   @MaxLength(50, { message: 'The membership must be less than 50 characters' })
   membership: string;
+
+  @IsBoolean({ message: 'The onboarding field must be a boolean' })
+  onboarding: boolean = false;
 }

@@ -18,7 +18,9 @@ export class LoggerService {
 
   createLoggers() {
     const textFormat = format.printf((log) => {
-      return `${log.timestamp} - [${log.level.toUpperCase().slice(0, 4)}] ${log.message}`;
+      return `${log.timestamp} - [${log.level.toUpperCase().slice(0, 4)}] ${
+        log.message
+      }`;
     });
 
     const dateFormat = format.timestamp({

@@ -8,6 +8,8 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { MailerService } from 'src/mailer/mailer.service';
+import { EmailTemplateType } from 'src/mailer/templates/email-templates';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +17,7 @@ export class AuthService {
     private readonly userServices: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService,
   ) {
     this.prisma.$connect();
   }
@@ -30,7 +33,15 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = { sub: user.id, email: user.email };
+    if (!user.onboarding) {
+      throw new UnauthorizedException('Usuario no ha completado el onboarding');
+    }
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      onboarding: user.onboarding,
+    };
 
     return {
       access_token: await this.jwtService.signAsync(payload),
@@ -49,9 +60,19 @@ export class AuthService {
         membership,
       } = userDto;
 
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingUser) {
+        throw new UnauthorizedException(
+          'El correo electrónico ya está registrado',
+        );
+      }
+
       const hashPassword = await bcrypt.hash(pass, 10);
 
-      const user = this.prisma.user.create({
+      const user = await this.prisma.user.create({
         data: {
           firstName,
           lastName,
@@ -67,9 +88,42 @@ export class AuthService {
         throw new InternalServerErrorException();
       }
 
+      await this.mailerService.sendEmail(
+        user.email,
+        EmailTemplateType.WELCOME_REGISTER,
+        {
+          userName: user.firstName,
+          url: `${process.env.FRONTEND_URL}/onboarding`,
+        },
+      );
+
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async onboarding(email: string, completed: boolean) {
+    const user = await this.userServices.findOneByEmail(email);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { onboarding: completed },
+    });
+
+    await this.mailerService.sendEmail(
+      user.email,
+      EmailTemplateType.COMPLETED_REGISTER,
+      {
+        userName: user.firstName,
+        url: `${process.env.FRONTEND_URL}/`,
+      },
+    );
+
+    return user;
   }
 }
