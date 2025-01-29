@@ -48,6 +48,10 @@ export class CreateUserDto {
   @MaxLength(50, { message: 'The membership must be less than 50 characters' })
   membership: string;
 
+  @IsNotEmpty({ message: 'The role is required' })
+  @MaxLength(50, { message: 'The role must be less than 50 characters' })
+  role: string = 'user';
+
   @IsBoolean({ message: 'The onboarding field must be a boolean' })
   onboarding: boolean = false;
 }

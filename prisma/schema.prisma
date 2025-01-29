@@ -22,7 +22,13 @@ model User {
   password   String
   country    String
   membership String
+  role       Role     @default(USER)
   onboarding Boolean  @default(false)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
+}
+
+enum Role {
+  ADMIN
+  USER
 }
