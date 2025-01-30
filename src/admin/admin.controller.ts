@@ -11,7 +11,9 @@ import { Roles } from '../common/roles.decorator';
 import { Role } from '@prisma/client';
 import { AuthGuard } from '../auth/guard/guard.guard';
 import { AdminService } from './admin.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth()
 @Controller('admin')
 @UseGuards(AuthGuard)
 @Roles(Role.ADMIN)
@@ -63,5 +65,14 @@ export class AdminController {
     }>,
   ) {
     return this.adminService.updateUser(id, body);
+  }
+
+  /**
+   * Endpoint para eliminar un usuario específico.
+   * @param id - ID del usuario a eliminar.
+   */
+  @Patch('users/:id')
+  async deleteUser(@Param('id') id: string) {
+    return this.adminService.deleteUser(id);
   }
 }
