@@ -28,7 +28,7 @@ export class AdminController {
    */
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.adminService.createAdmin(createUserDto);
+    return this.adminService.createUser(createUserDto);
   }
 
   /**
