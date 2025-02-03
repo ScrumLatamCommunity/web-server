@@ -1,10 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role } from '@prisma/client';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Crea los perfiles de los usuarios o sponsors que solicite
+   * el perfil de administrador.
+   * @param createUserDto - Datos del usuario a crear.
+   */
+  async createAdmin(createUserDto: CreateUserDto) {
+    try {
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: createUserDto.email },
+      });
+
+      if (existingUser) {
+        throw new ConflictException('El usuario con este correo ya existe.');
+      }
+
+      const { password, role: _role, ...userData } = createUserDto;
+      const hashPassword = await bcrypt.hash(password, 10);
+
+      const role = _role?.toUpperCase() as Role;
+      if (!Object.values(Role).includes(role)) {
+        throw new ConflictException('Rol no válido.');
+      }
+
+      return this.prisma.user.create({
+        data: {
+          ...userData,
+          role,
+          password: hashPassword,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          'Este correo electrónico ya está registrado.',
+        );
+      }
+      throw new InternalServerErrorException('Error al crear el usuario.');
+    }
+  }
 
   /**
    * Obtiene estadísticas generales de los usuarios.

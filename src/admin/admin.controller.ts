@@ -6,12 +6,14 @@ import {
   Param,
   Query,
   UseGuards,
+  Post,
 } from '@nestjs/common';
 import { Roles } from '../common/roles.decorator';
 import { Role } from '@prisma/client';
 import { AuthGuard } from '../auth/guard/guard.guard';
 import { AdminService } from './admin.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 @ApiBearerAuth()
 @Controller('admin')
@@ -19,6 +21,15 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 @Roles(Role.ADMIN)
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
+
+  /**
+   * Endpoint para crear un nuevo usuario.
+   * @param createUserDto - Datos del usuario a crear.
+   */
+  @Post()
+  async createAdmin(@Body() createUserDto: CreateUserDto) {
+    return this.adminService.createAdmin(createUserDto);
+  }
 
   /**
    * Endpoint para obtener estadísticas generales de los usuarios.
