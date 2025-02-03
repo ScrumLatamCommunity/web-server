@@ -17,7 +17,7 @@ export class AdminService {
    * el perfil de administrador.
    * @param createUserDto - Datos del usuario a crear.
    */
-  async createAdmin(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
     try {
       const existingUser = await this.prisma.user.findUnique({
         where: { email: createUserDto.email },

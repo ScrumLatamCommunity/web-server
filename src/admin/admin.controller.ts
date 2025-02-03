@@ -27,7 +27,7 @@ export class AdminController {
    * @param createUserDto - Datos del usuario a crear.
    */
   @Post()
-  async createAdmin(@Body() createUserDto: CreateUserDto) {
+  async createUser(@Body() createUserDto: CreateUserDto) {
     return this.adminService.createAdmin(createUserDto);
   }
 
