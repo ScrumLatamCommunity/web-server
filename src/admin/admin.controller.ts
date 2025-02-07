@@ -7,13 +7,15 @@ import {
   Query,
   UseGuards,
   Post,
+  Delete,
 } from '@nestjs/common';
-import { Roles } from '../common/roles.decorator';
-import { Role } from '@prisma/client';
+import { Roles } from '../auth/decorator/roles.decorator';
+import { Role, User } from '@prisma/client';
 import { AuthGuard } from '../auth/guard/guard.guard';
 import { AdminService } from './admin.service';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { AssignRoleDto } from './dto/asing_role.dto';
 
 @ApiBearerAuth()
 @Controller('admin')
@@ -36,8 +38,16 @@ export class AdminController {
    * Ejemplo: cantidad total de usuarios, usuarios por país, etc.
    */
   @Get('stats')
-  async getUserStats() {
+  /* async getUserStats() {
     return this.adminService.getUserStats();
+  } */
+  async getUserStats(@Query('filters') filters: string) {
+    const filterArray = filters?.split(',') as (
+      | 'membership'
+      | 'role'
+      | 'country'
+    )[];
+    return this.adminService.getUserStats(filterArray);
   }
 
   /**
@@ -46,7 +56,15 @@ export class AdminController {
    * @param body - Objeto que contiene el nuevo rol (e.g., `{ role: 'admin' }`).
    */
   @Patch(':id/role')
-  async assignRole(@Param('id') id: string, @Body() body: { role: string }) {
+  @ApiBody({
+    description: 'Objeto con el nuevo rol',
+    type: AssignRoleDto,
+  })
+  async assignRole(
+    @Param('id') id: string,
+    @Body()
+    body: { role: string },
+  ) {
     return this.adminService.assignRole(id, body.role);
   }
 
@@ -55,8 +73,24 @@ export class AdminController {
    * Ejemplo: Filtrar por país o tipo de membresía.
    */
   @Get('users')
-  async getUsers(@Query() query: { country?: string; membership?: string }) {
-    return this.adminService.getUsers(query);
+  @Get()
+  @ApiQuery({ name: 'country', required: false, type: String })
+  @ApiQuery({ name: 'membership', required: false, type: String })
+  @ApiQuery({ name: 'role', required: false, type: String })
+  @ApiQuery({ name: 'sortBy', required: false, type: String })
+  @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
+  async getUsers(
+    @Query('country') country?: string,
+    @Query('membership') membership?: string,
+    @Query('role') role?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('order') order?: 'asc' | 'desc',
+  ) {
+    return this.adminService.getUsers(
+      { country, membership, role },
+      sortBy as keyof User,
+      order,
+    );
   }
 
   /**
@@ -82,7 +116,7 @@ export class AdminController {
    * Endpoint para eliminar un usuario específico.
    * @param id - ID del usuario a eliminar.
    */
-  @Patch('users/:id')
+  @Delete('users/:id')
   async deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(id);
   }
