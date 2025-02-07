@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -19,6 +19,16 @@ export class AdminService {
    */
   async createUser(createUserDto: CreateUserDto) {
     try {
+      if (createUserDto.role === 'ADMIN') {
+        const existingAdmin = await this.prisma.user.findFirst({
+          where: { role: 'ADMIN' },
+        });
+
+        if (existingAdmin) {
+          throw new Error('Solo puede existir un usuario con rol ADMIN');
+        }
+      }
+
       const existingUser = await this.prisma.user.findUnique({
         where: { email: createUserDto.email },
       });
@@ -54,27 +64,31 @@ export class AdminService {
 
   /**
    * Obtiene estadísticas generales de los usuarios.
+   * @param filters - Filtros para la consulta.
    * Ejemplo: Número total de usuarios, desglose por país o membresía.
    */
-  async getUserStats() {
+  async getUserStats(filters: ('membership' | 'role' | 'country')[]) {
     const totalUsers = await this.prisma.user.count();
-    const usersByCountry = await this.prisma.user.groupBy({
-      by: ['country'],
-      _count: {
-        country: true,
-      },
-    });
-    const memberships = await this.prisma.user.groupBy({
-      by: ['membership'],
-      _count: {
-        membership: true,
-      },
-    });
+    const stats: Record<string, any[]> = {};
+
+    for (const filter of filters) {
+      const groupedData = await this.prisma.user.groupBy({
+        by: [filter],
+        _count: {
+          [filter]: true,
+        },
+      });
+
+      stats[filter] = groupedData.map((item) => ({
+        [filter]: item[filter],
+        count: item._count[filter],
+        percentage: ((item._count[filter] / totalUsers) * 100).toFixed(2) + '%',
+      }));
+    }
 
     return {
       totalUsers,
-      usersByCountry,
-      memberships,
+      ...stats,
     };
   }
 
@@ -85,6 +99,16 @@ export class AdminService {
    */
   async assignRole(userId: string, role: string) {
     const normalizedRole = role.toUpperCase() as Role;
+
+    if (normalizedRole === 'ADMIN') {
+      const existingAdmin = await this.prisma.user.findFirst({
+        where: { role: 'ADMIN' },
+      });
+
+      if (existingAdmin) {
+        throw new Error('Solo puede existir un usuario con rol ADMIN');
+      }
+    }
 
     if (!Object.values(Role).includes(normalizedRole)) {
       throw new Error(`Invalid role: ${role}`);
@@ -97,10 +121,16 @@ export class AdminService {
   }
 
   /**
-   * Obtiene la lista de usuarios con filtros opcionales.
-   * @param filters - Objeto con filtros opcionales (país, membresía).
+   * Obtiene una lista de usuarios con opciones de filtrado y ordenación.
+   * @param filters - Filtros para la consulta.
+   * @param sortBy - Campo por el cual ordenar los resultados.
+   * @param order - Orden de los resultados ('asc' o 'desc').
    */
-  async getUsers(filters: { country?: string; membership?: string }) {
+  async getUsers(
+    filters: { country?: string; membership?: string; role?: string },
+    sortBy?: keyof User,
+    order: 'asc' | 'desc' = 'asc',
+  ) {
     const where: any = {};
 
     if (filters.country) {
@@ -109,10 +139,21 @@ export class AdminService {
     if (filters.membership) {
       where.membership = filters.membership;
     }
+    if (filters.role) {
+      where.role = filters.role;
+    }
 
-    return this.prisma.user.findMany({
-      where,
-    });
+    const users = await this.prisma.user.findMany({ where });
+
+    if (sortBy) {
+      users.sort((a, b) => {
+        if (a[sortBy]! < b[sortBy]!) return order === 'asc' ? -1 : 1;
+        if (a[sortBy]! > b[sortBy]!) return order === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return users;
   }
 
   /**
