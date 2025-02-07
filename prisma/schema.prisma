@@ -22,6 +22,7 @@ model User {
   password   String
   country    String
   membership String
+  role       Role     @default(USER)
   onboarding Boolean  @default(false)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
@@ -88,4 +89,9 @@ model SponsorsOffert {
 enum Status {
   ACTIVE
   INACTIVE
+}
+
+enum Role {
+  ADMIN
+  USER
 }
