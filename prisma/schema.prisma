@@ -94,4 +94,5 @@ enum Status {
 enum Role {
   ADMIN
   USER
+  SPONSOR
 }
