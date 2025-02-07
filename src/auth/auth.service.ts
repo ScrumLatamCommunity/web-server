@@ -24,6 +24,7 @@ export class AuthService {
 
   async signIn(email: string, pass: string) {
     const user = await this.userServices.findOneByEmail(email);
+    //Agregar acá una validacion para poder loguear desde el modelo de Sponsors
 
     if (!user) {
       throw new UnauthorizedException();

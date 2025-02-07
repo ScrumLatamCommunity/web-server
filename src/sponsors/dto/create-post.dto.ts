@@ -3,7 +3,6 @@ import {
   IsString,
   IsNotEmpty,
   IsOptional,
-  IsDate,
   IsUUID,
   IsEnum,
 } from 'class-validator';
@@ -21,12 +20,12 @@ export class CreateSponsorsPostDto {
   @IsNotEmpty()
   category: string;
 
-  @IsDate()
-  validFrom: Date;
+  @IsString()
+  validFrom: string;
 
   @IsOptional()
-  @IsDate()
-  validUntil?: Date;
+  @IsString()
+  validUntil?: string;
 
   @IsString()
   @IsNotEmpty()

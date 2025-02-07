@@ -24,10 +24,16 @@ export class SponsorsService {
   }
 
   createPost(createSponsorPostDto: CreateSponsorsPostDto) {
-    const { sponsorId, ...postData } = createSponsorPostDto;
+    const { sponsorId, validFrom, validUntil, ...postData } =
+      createSponsorPostDto;
+
+    const formattedValidFrom = new Date(validFrom);
+    const formattedValidUntil = validUntil ? new Date(validUntil) : null;
     const newPost = this.prisma.sponsorsPost.create({
       data: {
         sponsor: { connect: { id: sponsorId } },
+        validFrom: formattedValidFrom,
+        validUntil: formattedValidUntil,
         ...postData,
       },
     });
@@ -35,9 +41,18 @@ export class SponsorsService {
   }
 
   createOffert(createSponsorOffertDto: CreateSponsorsOffertDto) {
-    const { sponsorId, ...postOffert } = createSponsorOffertDto;
+    const { sponsorId, validFrom, validUntil, ...postOffert } =
+      createSponsorOffertDto;
+
+    const fromattedValidFrom = new Date(validFrom);
+    const formattedValidUntil = validUntil ? new Date(validUntil) : null;
     const newOffert = this.prisma.sponsorsOffert.create({
-      data: { sponsor: { connect: { id: sponsorId } }, ...postOffert },
+      data: {
+        sponsor: { connect: { id: sponsorId } },
+        validFrom: fromattedValidFrom,
+        validUntil: formattedValidUntil,
+        ...postOffert,
+      },
     });
     return newOffert;
   }
@@ -47,10 +62,12 @@ export class SponsorsService {
   }
 
   findAllPosts() {
+    console.log('GET /posts ejecutado');
     return this.prisma.sponsorsPost.findMany();
   }
 
   findAllOfferts() {
+    console.log('GET /posts ejecutado');
     return this.prisma.sponsorsOffert.findMany();
   }
 

@@ -1,5 +1,5 @@
 import { Status } from '@prisma/client';
-import { IsString, IsNotEmpty, IsDate, IsUUID, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsUUID, IsEnum } from 'class-validator';
 
 export class CreateSponsorsOffertDto {
   @IsUUID()
@@ -14,11 +14,11 @@ export class CreateSponsorsOffertDto {
   @IsNotEmpty()
   category: string;
 
-  @IsDate()
-  validFrom: Date;
+  @IsString()
+  validFrom: string;
 
-  @IsDate()
-  validUntil: Date;
+  @IsString()
+  validUntil: string;
 
   @IsString()
   @IsNotEmpty()

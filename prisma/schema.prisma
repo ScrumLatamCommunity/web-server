@@ -30,6 +30,7 @@ model User {
   sponsorsData SponsorsData?
 }
 
+//modificar el SponsorsData para que sea un modelo Sponsor y que sea una tabla 
 model SponsorsData {
   id             String   @id @default(uuid())
   userId         String   @unique
@@ -38,7 +39,7 @@ model SponsorsData {
   specialization String
   description    String
   web            String
-  phone          BigInt
+  phone          Int
   socials        String[]
   logo           String
   bannerWeb      String

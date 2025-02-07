@@ -7,13 +7,19 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { SponsorsService } from './sponsors.service';
 import { CreateSponsorDto } from './dto/create-sponsor.dto';
 import { UpdateSponsorDto } from './dto/update-sponsor.dto';
 import { CreateSponsorsPostDto } from './dto/create-post.dto';
 import { CreateSponsorsOffertDto } from './dto/create-offert.dto';
+import { AuthGuard } from 'src/auth/guard/guard.guard';
+import { Roles } from 'src/auth/decorator/roles.decorator';
+import { Role } from '@prisma/client';
 
+@UseGuards(AuthGuard)
+@Roles(Role.SPONSOR)
 @Controller('sponsors')
 export class SponsorsController {
   constructor(private readonly sponsorsService: SponsorsService) {}
@@ -22,6 +28,44 @@ export class SponsorsController {
   findAllSponsors() {
     try {
       return this.sponsorsService.findAllSponsors();
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/posts')
+  findAllPosts() {
+    console.log('GET /posts ejecutado');
+    try {
+      return this.sponsorsService.findAllPosts();
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/posts/:id')
+  findOnePost(@Param('id') id: string) {
+    try {
+      return this.sponsorsService.findOnePost(id);
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/offerts')
+  findAllOffert() {
+    console.log('GET /posts ejecutado');
+    try {
+      return this.sponsorsService.findAllOfferts();
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @Get('/offerts/:id')
+  findOneOffert(@Param('id') id: string) {
+    try {
+      return this.sponsorsService.findOneOffert(id);
     } catch (error) {
       return new HttpException(error, HttpStatus.NOT_FOUND);
     }
@@ -36,42 +80,6 @@ export class SponsorsController {
     }
   }
 
-  @Get()
-  findAllPosts() {
-    try {
-      return this.sponsorsService.findAllPosts();
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @Get(':id')
-  findOnePost(@Param('id') id: string) {
-    try {
-      return this.sponsorsService.findOnePost(id);
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @Get()
-  findAllOffert() {
-    try {
-      return this.sponsorsService.findAllOfferts();
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
-  }
-
-  @Get(':id')
-  findOneOffert(@Param('id') id: string) {
-    try {
-      return this.sponsorsService.findOneOffert(id);
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
-  }
-
   @Post()
   createSponsor(@Body() createSponsorDto: CreateSponsorDto) {
     try {
@@ -81,7 +89,7 @@ export class SponsorsController {
     }
   }
 
-  @Post()
+  @Post('/posts')
   createPost(@Body() createSponsorPostDto: CreateSponsorsPostDto) {
     try {
       return this.sponsorsService.createPost(createSponsorPostDto);
@@ -90,7 +98,7 @@ export class SponsorsController {
     }
   }
 
-  @Post()
+  @Post('/offerts')
   createOffert(@Body() createSponsorOffertDto: CreateSponsorsOffertDto) {
     try {
       return this.sponsorsService.createOffert(createSponsorOffertDto);
@@ -111,7 +119,7 @@ export class SponsorsController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/switchSponsorStatus/:id')
   switchSponsorStatus(@Param('id') id: string) {
     try {
       return this.sponsorsService.switchSponsorStatus(id);
@@ -120,7 +128,7 @@ export class SponsorsController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/switchPostStatus/:id')
   switchPostStatus(@Param('id') id: string) {
     try {
       return this.sponsorsService.switchPostStatus(id);
@@ -129,7 +137,7 @@ export class SponsorsController {
     }
   }
 
-  @Patch(':id')
+  @Patch('/switchOffertStatus/:id')
   switchOffertStatus(@Param('id') id: string) {
     try {
       return this.sponsorsService.switchOffertStatus(id);
