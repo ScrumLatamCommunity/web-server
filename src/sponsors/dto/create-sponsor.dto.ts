@@ -20,7 +20,7 @@ export class CreateSponsorDto {
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  companyName: string;
 
   @IsString()
   @IsNotEmpty()

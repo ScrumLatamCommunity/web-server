@@ -35,7 +35,7 @@ model SponsorsData {
   id             String   @id @default(uuid())
   userId         String   @unique
   status         Status
-  name           String
+  companyName           String
   specialization String
   description    String
   web            String
