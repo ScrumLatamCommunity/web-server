@@ -31,8 +31,9 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('register/sponsor')
-  signUpSponsor(@Body() sponsorRegisterDto: SponsorRegisterDto) {
-    return this.authService.signUpSponsor(sponsorRegisterDto);
+  async signUpSponsor(@Body() sponsorRegisterDto: SponsorRegisterDto) {
+    const response = await this.authService.signUpSponsor(sponsorRegisterDto);
+    return response;
   }
 
   @HttpCode(HttpStatus.OK)

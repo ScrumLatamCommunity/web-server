@@ -185,7 +185,11 @@ export class AuthService {
       where: { userId: id },
     });
 
-    return { newSponsor, newSponsorData };
+    return {
+      message: 'Usuario registrado exitosamente',
+      newSponsor,
+      newSponsorData,
+    };
   }
 
   async onboarding(email: string, completed: boolean) {

@@ -5,7 +5,6 @@ import {
   IsEnum,
   IsArray,
   IsUrl,
-  IsNumber,
 } from 'class-validator';
 import { Status } from '@prisma/client';
 
@@ -34,9 +33,9 @@ export class CreateSponsorDto {
   @IsNotEmpty()
   web: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  phone: number;
+  phone: string;
 
   @IsArray()
   @IsString({ each: true })

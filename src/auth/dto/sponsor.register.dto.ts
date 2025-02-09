@@ -4,7 +4,6 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsString,
   IsStrongPassword,
   IsUrl,
@@ -73,9 +72,9 @@ export class SponsorRegisterDto {
   @IsNotEmpty()
   web: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  phone: number;
+  phone: string;
 
   @IsArray()
   @IsString({ each: true })
