@@ -16,9 +16,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guard/guard.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-// @ApiBearerAuth()
-// @ApiTags('users')
-// @UseGuards(AuthGuard)
+@ApiBearerAuth()
+@ApiTags('users')
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

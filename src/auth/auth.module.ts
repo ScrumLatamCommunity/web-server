@@ -7,6 +7,7 @@ import { jwtConstants } from './constants/jwtConstants';
 import { AuthGuard } from './guard/guard.guard';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { MailerModule } from 'src/mailer/mailer.module';
+import { SponsorsService } from 'src/sponsors/sponsors.service';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { MailerModule } from 'src/mailer/mailer.module';
     MailerModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard],
+  providers: [AuthService, AuthGuard, SponsorsService],
   exports: [AuthGuard],
 })
 export class AuthModule {}

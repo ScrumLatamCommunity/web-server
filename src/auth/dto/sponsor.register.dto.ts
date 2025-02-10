@@ -1,12 +1,16 @@
+import { Status } from '@prisma/client';
 import {
+  IsArray,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
+  IsString,
   IsStrongPassword,
-  IsBoolean,
+  IsUrl,
   MaxLength,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class SponsorRegisterDto {
   @IsNotEmpty({ message: 'The first name is required' })
   @MaxLength(100, {
     message: 'The first name must be less than 100 characters',
@@ -48,10 +52,43 @@ export class CreateUserDto {
   @MaxLength(50, { message: 'The membership must be less than 50 characters' })
   membership: string;
 
-  @IsNotEmpty({ message: 'The role is required' })
-  @MaxLength(50, { message: 'The role must be less than 50 characters' })
-  role: string = 'user';
+  @IsEnum(Status)
+  @IsNotEmpty()
+  status: Status;
 
-  @IsBoolean({ message: 'The onboarding field must be a boolean' })
-  onboarding: boolean = false;
+  @IsString()
+  @IsNotEmpty()
+  companyName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  specialization: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @IsUrl()
+  @IsNotEmpty()
+  web: string;
+
+  @IsString()
+  @IsNotEmpty()
+  phone: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  socials: string[];
+
+  @IsUrl()
+  @IsNotEmpty()
+  logo: string;
+
+  @IsUrl()
+  @IsNotEmpty()
+  bannerWeb: string;
+
+  @IsUrl()
+  @IsNotEmpty()
+  bannerMobile: string;
 }

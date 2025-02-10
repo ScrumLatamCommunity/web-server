@@ -22,7 +22,77 @@ model User {
   password   String
   country    String
   membership String
+  role       Role     @default(USER)
   onboarding Boolean  @default(false)
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
+
+  sponsorsData SponsorsData?
+}
+
+model SponsorsData {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  status         Status
+  companyName    String
+  specialization String
+  description    String
+  web            String
+  phone          String
+  socials        String[]
+  logo           String
+  bannerWeb      String
+  bannerMobile   String
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user   User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts  SponsorsPost[]
+  offers SponsorsOffert[]
+}
+
+model SponsorsPost {
+  id          String    @id @default(uuid())
+  sponsorId   String
+  status      Status
+  title       String
+  category    String
+  validFrom   DateTime
+  validUntil  DateTime?
+  description String
+  link        String
+  imageWeb    String
+  imageMobile String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  sponsor SponsorsData @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+}
+
+model SponsorsOffert {
+  id          String   @id @default(uuid())
+  sponsorId   String
+  status      Status
+  title       String
+  category    String
+  validFrom   DateTime
+  validUntil  DateTime
+  description String
+  link        String
+  image       String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  sponsor SponsorsData @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Role {
+  ADMIN
+  USER
+  SPONSOR
 }

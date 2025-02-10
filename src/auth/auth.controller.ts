@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { SponsorRegisterDto } from './dto/sponsor.register.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -26,6 +27,13 @@ export class AuthController {
   @Post('register')
   signUp(@Body() signInDto: RegisterDto) {
     return this.authService.signUp(signInDto);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post('register/sponsor')
+  async signUpSponsor(@Body() sponsorRegisterDto: SponsorRegisterDto) {
+    const response = await this.authService.signUpSponsor(sponsorRegisterDto);
+    return response;
   }
 
   @HttpCode(HttpStatus.OK)

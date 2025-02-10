@@ -10,6 +10,7 @@ import { RegisterDto } from './dto/register.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/mailer/mailer.service';
 import { EmailTemplateType } from 'src/mailer/templates/email-templates';
+import { SponsorsService } from 'src/sponsors/sponsors.service';
 
 @Injectable()
 export class AuthService {
@@ -18,12 +19,14 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly mailerService: MailerService,
+    private readonly sponsorService: SponsorsService,
   ) {
     this.prisma.$connect();
   }
 
   async signIn(email: string, pass: string) {
     const user = await this.userServices.findOneByEmail(email);
+    //Agregar acá una validacion para poder loguear desde el modelo de Sponsors
 
     if (!user) {
       throw new UnauthorizedException();
@@ -40,6 +43,7 @@ export class AuthService {
     const payload = {
       sub: user.id,
       email: user.email,
+      role: user.role,
       onboarding: user.onboarding,
     };
 
@@ -101,6 +105,91 @@ export class AuthService {
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
+  }
+
+  async signUpSponsor(sponsorRegisterDto) {
+    const {
+      firstName,
+      lastName,
+      username,
+      email,
+      password: pass,
+      country,
+      membership,
+    } = sponsorRegisterDto;
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new UnauthorizedException(
+        'El correo electrónico ya está registrado',
+      );
+    }
+
+    const hashPassword = await bcrypt.hash(pass, 10);
+
+    await this.prisma.user.create({
+      data: {
+        firstName,
+        lastName,
+        username,
+        country,
+        membership,
+        email,
+        password: hashPassword,
+      },
+    });
+
+    const newSponsor = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    newSponsor.role = 'SPONSOR';
+
+    await this.prisma.user.update({
+      where: { id: newSponsor.id },
+      data: newSponsor,
+    });
+
+    const { id } = newSponsor;
+    const {
+      status,
+      companyName,
+      specialization,
+      description,
+      web,
+      phone,
+      socials,
+      logo,
+      bannerWeb,
+      bannerMobile,
+    } = sponsorRegisterDto;
+
+    await this.sponsorService.createSponsor({
+      userId: id,
+      status,
+      companyName,
+      specialization,
+      description,
+      web,
+      phone,
+      socials,
+      logo,
+      bannerWeb,
+      bannerMobile,
+    });
+
+    const newSponsorData = await this.prisma.sponsorsData.findUnique({
+      where: { userId: id },
+    });
+
+    return {
+      message: 'Usuario registrado exitosamente',
+      newSponsor,
+      newSponsorData,
+    };
   }
 
   async onboarding(email: string, completed: boolean) {
