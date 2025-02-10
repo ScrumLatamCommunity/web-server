@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Role, User } from '@prisma/client';
+import { Role, User, Status } from '@prisma/client';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
@@ -21,7 +21,7 @@ export class AdminService {
     try {
       if (createUserDto.role === 'ADMIN') {
         const existingAdmin = await this.prisma.user.findFirst({
-          where: { role: 'ADMIN' },
+          where: { role: Role.ADMIN },
         });
 
         if (existingAdmin) {
@@ -50,6 +50,24 @@ export class AdminService {
           ...userData,
           role,
           password: hashPassword,
+          sponsorsData:
+            role === Role.SPONSOR
+              ? {
+                  create: {
+                    companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
+                    specialization: 'Sin especialización',
+                    description: 'Descripción no proporcionada',
+                    web: 'https://example.com',
+                    phone: '', // 🔹 Asegurar que sea String
+                    socials: [],
+                    logo: 'https://example.com/default-logo.png',
+                    bannerWeb: 'https://example.com/default-banner-web.png',
+                    bannerMobile:
+                      'https://example.com/default-banner-mobile.png',
+                    status: Status.INACTIVE, // ✅ Enum correcto
+                  },
+                }
+              : undefined,
         },
       });
     } catch (error) {
@@ -100,9 +118,9 @@ export class AdminService {
   async assignRole(userId: string, role: string) {
     const normalizedRole = role.toUpperCase() as Role;
 
-    if (normalizedRole === 'ADMIN') {
+    if (normalizedRole === Role.ADMIN) {
       const existingAdmin = await this.prisma.user.findFirst({
-        where: { role: 'ADMIN' },
+        where: { role: Role.ADMIN },
       });
 
       if (existingAdmin) {
@@ -111,13 +129,39 @@ export class AdminService {
     }
 
     if (!Object.values(Role).includes(normalizedRole)) {
-      throw new Error(`Invalid role: ${role}`);
+      throw new Error(`Rol inválido: ${role}`);
     }
 
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id: userId },
       data: { role: normalizedRole },
     });
+
+    if (normalizedRole === Role.SPONSOR) {
+      const existingSponsor = await this.prisma.sponsorsData.findUnique({
+        where: { userId },
+      });
+
+      if (!existingSponsor) {
+        await this.prisma.sponsorsData.create({
+          data: {
+            userId,
+            companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
+            specialization: 'Sin especialización',
+            description: 'Descripción no proporcionada',
+            web: 'https://example.com',
+            phone: '', // 🔹 Asegurar que sea String
+            socials: [],
+            logo: 'https://example.com/default-logo.png',
+            bannerWeb: 'https://example.com/default-banner-web.png',
+            bannerMobile: 'https://example.com/default-banner-mobile.png',
+            status: Status.INACTIVE, // ✅ Enum correcto
+          },
+        });
+      }
+    }
+
+    return user;
   }
 
   /**
@@ -133,17 +177,14 @@ export class AdminService {
   ) {
     const where: any = {};
 
-    if (filters.country) {
-      where.country = filters.country;
-    }
-    if (filters.membership) {
-      where.membership = filters.membership;
-    }
-    if (filters.role) {
-      where.role = filters.role;
-    }
+    if (filters.country) where.country = filters.country;
+    if (filters.membership) where.membership = filters.membership;
+    if (filters.role) where.role = filters.role;
 
-    const users = await this.prisma.user.findMany({ where });
+    const users = await this.prisma.user.findMany({
+      where,
+      include: { sponsorsData: true },
+    });
 
     if (sortBy) {
       users.sort((a, b) => {
@@ -173,6 +214,30 @@ export class AdminService {
     return this.prisma.user.update({
       where: { id: userId },
       data,
+    });
+  }
+
+  /**
+   * Actualiza el estado de un Sponsor
+   * @param userId - ID del usuario que tiene el perfil de Sponsor
+   * @param status - Nuevo estado (ACTIVE o INACTIVE)
+   */
+  async updateSponsorStatus(userId: string, newStatus: Status) {
+    const sponsor = await this.prisma.sponsorsData.findUnique({
+      where: { userId },
+    });
+
+    if (!sponsor) {
+      throw new Error('El usuario no tiene un perfil de Sponsor.');
+    }
+
+    if (!Object.values(Status).includes(newStatus)) {
+      throw new Error(`Estado inválido: ${newStatus}`);
+    }
+
+    return this.prisma.sponsorsData.update({
+      where: { userId },
+      data: { status: newStatus },
     });
   }
 

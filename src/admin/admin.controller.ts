@@ -10,7 +10,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { Roles } from '../auth/decorator/roles.decorator';
-import { Role, User } from '@prisma/client';
+import { Role, User, Status } from '@prisma/client';
 import { AuthGuard } from '../auth/guard/guard.guard';
 import { AdminService } from './admin.service';
 import { ApiBearerAuth, ApiQuery, ApiBody } from '@nestjs/swagger';
@@ -38,9 +38,6 @@ export class AdminController {
    * Ejemplo: cantidad total de usuarios, usuarios por país, etc.
    */
   @Get('stats')
-  /* async getUserStats() {
-    return this.adminService.getUserStats();
-  } */
   async getUserStats(@Query('filters') filters: string) {
     const filterArray = filters?.split(',') as (
       | 'membership'
@@ -110,6 +107,14 @@ export class AdminController {
     }>,
   ) {
     return this.adminService.updateUser(id, body);
+  }
+
+  @Patch('sponsors/:userId/status')
+  async updateSponsorStatus(
+    @Param('userId') userId: string,
+    @Body('status') status: Status,
+  ) {
+    return this.adminService.updateSponsorStatus(userId, status);
   }
 
   /**
