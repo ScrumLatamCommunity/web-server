@@ -10,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: new LoggerService(),
   });
-
   app.enableCors({
     origin: '*',
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
@@ -19,7 +18,6 @@ async function bootstrap() {
     credentials: true,
     maxAge: 3600,
   });
-
   app.setGlobalPrefix('api/v1');
 
   app.useGlobalPipes(
