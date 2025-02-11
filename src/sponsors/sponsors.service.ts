@@ -71,13 +71,22 @@ export class SponsorsService {
     return this.prisma.sponsorsOffert.findMany();
   }
 
-  findOneSponsor(id: string) {
-    const foundSponsor = this.prisma.sponsorsData.findUnique({ where: { id } });
+  async findOneSponsor(id: string) {
+    const foundSponsor = await this.prisma.sponsorsData.findUnique({
+      where: { userId: id },
+      include: {
+        user: true,
+        posts: true,
+        offers: true,
+      },
+    });
+
+    console.log('foundSponsor', foundSponsor);
     if (!foundSponsor) {
       throw new NotFoundException(`Sponsor with id ${id} not found`);
-    } else {
-      return foundSponsor;
     }
+
+    return foundSponsor;
   }
 
   findOnePost(id: string) {

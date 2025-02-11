@@ -73,6 +73,7 @@ export class SponsorsController {
 
   @Get(':id')
   findOneSponsor(@Param('id') id: string) {
+    console.log('GET /:id ejecutado', id);
     try {
       return this.sponsorsService.findOneSponsor(id);
     } catch (error) {

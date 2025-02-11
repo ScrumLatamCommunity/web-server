@@ -92,15 +92,6 @@ export class AuthService {
         throw new InternalServerErrorException();
       }
 
-      await this.mailerService.sendEmail(
-        user.email,
-        EmailTemplateType.WELCOME_REGISTER,
-        {
-          userName: user.firstName,
-          url: `${process.env.FRONTEND_URL}/onboarding`,
-        },
-      );
-
       return user;
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -139,6 +130,7 @@ export class AuthService {
         membership,
         email,
         password: hashPassword,
+        onboarding: true,
       },
     });
 
