@@ -7,6 +7,14 @@ interface EnvVars {
   MAIL_PASSWORD: string;
   MAIL_FROM: string;
   NODE_ENV: string;
+  AWS_ACCESS_KEY: string;
+  AWS_SECRET_ACCESS_KEY: string;
+  BUCKET_NAME: string;
+  DOMAIN: string;
+  ENDPOINT_URL: string;
+  TOKEN_CLOUDFLARE: string;
+  PREDETERMINADO: string;
+  UNION_EUROPEA: string;
 }
 
 const envsSchema = joi
@@ -16,6 +24,14 @@ const envsSchema = joi
     MAIL_PASSWORD: joi.string().required(),
     MAIL_FROM: joi.string().required(),
     NODE_ENV: joi.string().required().valid('dev', 'production', 'test'),
+    AWS_ACCESS_KEY: joi.string().required(),
+    AWS_SECRET_ACCESS_KEY: joi.string().required(),
+    BUCKET_NAME: joi.string().required(),
+    DOMAIN: joi.string().required(),
+    ENDPOINT_URL: joi.string().required(),
+    TOKEN_CLOUDFLARE: joi.string().required(),
+    PREDETERMINADO: joi.string().required(),
+    UNION_EUROPEA: joi.string().required(),
   })
   .unknown();
 
@@ -33,4 +49,12 @@ export const envs = {
   mailPassword: envVars.MAIL_PASSWORD,
   mailFrom: envVars.MAIL_FROM,
   nodeEnv: envVars.NODE_ENV,
+  awsAccessKey: envVars.AWS_ACCESS_KEY,
+  awsSecretAccessKey: envVars.AWS_SECRET_ACCESS_KEY,
+  bucketName: envVars.BUCKET_NAME,
+  domain: envVars.DOMAIN,
+  endpointUrl: envVars.ENDPOINT_URL,
+  predeterminado: envVars.PREDETERMINADO,
+  tokenCloudflare: envVars.TOKEN_CLOUDFLARE,
+  unionEuropea: envVars.UNION_EUROPEA,
 };

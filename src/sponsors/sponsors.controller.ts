@@ -116,6 +116,7 @@ export class SponsorsController {
     try {
       return this.sponsorsService.updateSponsor(id, updateSponsorDto);
     } catch (error) {
+      console.log(error);
       return new HttpException(error, HttpStatus.NOT_FOUND);
     }
   }

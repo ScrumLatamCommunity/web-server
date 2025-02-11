@@ -109,16 +109,21 @@ export class SponsorsService {
     }
   }
 
-  updateSponsor(id: string, updateSponsorDto: UpdateSponsorDto) {
-    const foundSponsor = this.prisma.sponsorsData.findUnique({ where: { id } });
-    if (!foundSponsor) {
+  async updateSponsor(id: string, updateSponsorDto: UpdateSponsorDto) {
+    const sponsorExists = await this.prisma.sponsorsData.findUnique({
+      where: { id },
+    });
+
+    if (!sponsorExists) {
       throw new NotFoundException(`Sponsor with id ${id} not found`);
-    } else {
-      return this.prisma.sponsorsData.update({
-        where: { id },
-        data: updateSponsorDto,
-      });
     }
+
+    const updatedSponsor = await this.prisma.sponsorsData.update({
+      where: { id },
+      data: updateSponsorDto,
+    });
+
+    return updatedSponsor;
   }
 
   async switchSponsorStatus(id: string) {
