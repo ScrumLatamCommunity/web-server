@@ -12,7 +12,7 @@ export class CreateSponsorsOffertDto {
 
   @IsString()
   @IsNotEmpty()
-  category: string;
+  discount: string;
 
   @IsString()
   validFrom: string;
@@ -23,6 +23,18 @@ export class CreateSponsorsOffertDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsString()
+  @IsNotEmpty()
+  place: string;
+
+  @IsString()
+  @IsNotEmpty()
+  time: string;
+
+  @IsString()
+  @IsNotEmpty()
+  intendedFor: string;
 
   @IsString()
   @IsNotEmpty()

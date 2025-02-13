@@ -74,10 +74,13 @@ model SponsorsOffert {
   sponsorId   String
   status      Status
   title       String
-  category    String
+  discount    String
   validFrom   DateTime
   validUntil  DateTime
   description String
+  time        String
+  place       String
+  intendedFor String
   link        String
   image       String
   createdAt   DateTime @default(now()) @map("created_at")
