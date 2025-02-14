@@ -58,7 +58,15 @@ export class SponsorsService {
   }
 
   findAllSponsors() {
-    return this.prisma.sponsorsData.findMany();
+    return this.prisma.sponsorsData.findMany({
+      include: {
+        user: {
+          select: {
+            country: true,
+          },
+        },
+      },
+    });
   }
 
   findAllPosts() {
@@ -180,3 +188,4 @@ export class SponsorsService {
     return foundOffert;
   }
 }
+
