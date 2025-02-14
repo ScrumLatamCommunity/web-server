@@ -4,6 +4,7 @@ import { envs } from './config/envs';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerConfig } from './config/swagger.config';
 import { LoggerService } from './config/logger.config';
+import { loggerGlobal } from './middlewares/logger.middleware';
 
 async function bootstrap() {
   const { port } = envs;
@@ -26,9 +27,11 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.use(loggerGlobal);
 
   SwaggerConfig.setupV1(app);
 
   await app.listen(port ?? 3000);
 }
 bootstrap();
+
