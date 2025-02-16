@@ -81,7 +81,7 @@ export class SponsorsService {
 
   async findOneSponsor(id: string) {
     const foundSponsor = await this.prisma.sponsorsData.findUnique({
-      where: { userId: id },
+      where: { id },
       include: {
         user: true,
         posts: true,
