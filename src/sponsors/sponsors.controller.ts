@@ -19,7 +19,7 @@ import { Roles } from 'src/auth/decorator/roles.decorator';
 import { Role } from '@prisma/client';
 
 @UseGuards(AuthGuard)
-@Roles(Role.SPONSOR)
+@Roles(Role.SPONSOR, Role.ADMIN)
 @Controller('sponsors')
 export class SponsorsController {
   constructor(private readonly sponsorsService: SponsorsService) {}
