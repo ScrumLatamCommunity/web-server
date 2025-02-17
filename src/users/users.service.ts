@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -45,8 +49,35 @@ export class UsersService {
     return this.prisma.user.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id },
+        include: {
+          sponsorsData: {
+            include: {
+              posts: true,
+              offers: true,
+            },
+          },
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException(`User with id ${id} not found`);
+      }
+
+      // Si el usuario no es SPONSOR, retornamos solo los datos básicos
+      if (user.role !== 'SPONSOR') {
+        const { sponsorsData, ...userData } = user;
+        return userData;
+      }
+
+      // Si es SPONSOR, devolvemos toda la información
+      return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

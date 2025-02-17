@@ -18,7 +18,6 @@ import { AuthGuard } from 'src/auth/guard/guard.guard';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { Role } from '@prisma/client';
 
-@UseGuards(AuthGuard)
 @Roles(Role.SPONSOR, Role.ADMIN)
 @Controller('sponsors')
 export class SponsorsController {
@@ -81,6 +80,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   createSponsor(@Body() createSponsorDto: CreateSponsorDto) {
     try {
@@ -90,6 +90,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/posts')
   createPost(@Body() createSponsorPostDto: CreateSponsorsPostDto) {
     try {
@@ -99,6 +100,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/offerts')
   createOffert(@Body() createSponsorOffertDto: CreateSponsorsOffertDto) {
     try {
@@ -108,6 +110,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   updateSponsor(
     @Param('id') id: string,
@@ -121,6 +124,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/switchSponsorStatus/:id')
   switchSponsorStatus(@Param('id') id: string) {
     try {
@@ -130,6 +134,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/switchPostStatus/:id')
   switchPostStatus(@Param('id') id: string) {
     try {
@@ -139,6 +144,8 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Patch('/switchOffertStatus/:id')
   switchOffertStatus(@Param('id') id: string) {
     try {
