@@ -70,6 +70,16 @@ export class SponsorsController {
     }
   }
 
+  @Get('/user/:id')
+  findOneSponsorUser(@Param('id') userId: string) {
+    console.log('GET user/:id ejecutado', userId);
+    try {
+      return this.sponsorsService.findOneSponsorUser(userId);
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
   @Get(':id')
   findOneSponsor(@Param('id') id: string) {
     console.log('GET /:id ejecutado', id);
@@ -155,3 +165,4 @@ export class SponsorsController {
     }
   }
 }
+
