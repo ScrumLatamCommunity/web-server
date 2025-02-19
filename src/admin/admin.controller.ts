@@ -34,6 +34,20 @@ export class AdminController {
   }
 
   /**
+   * Endpoint para obtener estadísticas generales de los usuarios.
+   * Ejemplo: cantidad total de usuarios, usuarios por país, etc.
+   */
+  @Get('stats')
+  async getUserStats(@Query('filters') filters: string) {
+    const filterArray = filters?.split(',') as (
+      | 'membership'
+      | 'role'
+      | 'country'
+    )[];
+    return this.adminService.getUserStats(filterArray);
+  }
+
+  /**
    * Endpoint para asignar un rol a un usuario.
    * @param id - ID del usuario al que se le va a asignar el rol.
    * @param body - Objeto que contiene el nuevo rol (e.g., `{ role: 'admin' }`).

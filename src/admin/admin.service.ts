@@ -82,6 +82,36 @@ export class AdminService {
       throw new InternalServerErrorException('Error al crear el usuario.');
     }
   }
+  /*
+   * @param filters - Filtros para la consulta.
+   * Ejemplo: Número total de usuarios, desglose por país o membresía.
+   */
+  async getUserStats(filters: ('membership' | 'role' | 'country')[]) {
+    const totalUsers = await this.prisma.user.count();
+    const stats: Record<string, any[]> = {};
+
+    for (const filter of filters) {
+      const groupedData = await this.prisma.user.groupBy({
+        by: [filter],
+        _count: {
+          [filter]: true,
+        },
+      });
+
+      stats[filter] = groupedData.map((item) => ({
+        [filter]:
+          item[filter] +
+          ((item._count[filter] / totalUsers) * 100).toFixed(2) +
+          '%',
+        count: item._count[filter],
+      }));
+    }
+
+    return {
+      totalUsers,
+      ...stats,
+    };
+  }
 
   /**
    * Asigna un rol específico a un usuario.
@@ -155,8 +185,27 @@ export class AdminService {
     if (filters.role) where.role = filters.role;
 
     const users = await this.prisma.user.findMany({
-      where,
-      include: { sponsorsData: true },
+      where: {
+        role: {
+          not: Role.ADMIN,
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        country: true,
+        membership: true,
+        role: true,
+        onboarding: true,
+        createdAt: true,
+        updatedAt: true,
+        sponsorsData: true,
+      },
+      orderBy: {
+        [sortBy || 'createdAt']: order,
+      },
     });
 
     if (sortBy) {
