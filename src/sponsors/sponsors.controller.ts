@@ -18,8 +18,7 @@ import { AuthGuard } from 'src/auth/guard/guard.guard';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { Role } from '@prisma/client';
 
-@UseGuards(AuthGuard)
-@Roles(Role.SPONSOR)
+@Roles(Role.SPONSOR, Role.ADMIN)
 @Controller('sponsors')
 export class SponsorsController {
   constructor(private readonly sponsorsService: SponsorsService) {}
@@ -71,6 +70,16 @@ export class SponsorsController {
     }
   }
 
+  @Get('/user/:id')
+  findOneSponsorUser(@Param('id') userId: string) {
+    console.log('GET user/:id ejecutado', userId);
+    try {
+      return this.sponsorsService.findOneSponsorUser(userId);
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
+  }
+
   @Get(':id')
   findOneSponsor(@Param('id') id: string) {
     console.log('GET /:id ejecutado', id);
@@ -81,6 +90,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post()
   createSponsor(@Body() createSponsorDto: CreateSponsorDto) {
     try {
@@ -90,6 +100,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/posts')
   createPost(@Body() createSponsorPostDto: CreateSponsorsPostDto) {
     try {
@@ -99,6 +110,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/offerts')
   createOffert(@Body() createSponsorOffertDto: CreateSponsorsOffertDto) {
     try {
@@ -108,6 +120,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   updateSponsor(
     @Param('id') id: string,
@@ -121,6 +134,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/switchSponsorStatus/:id')
   switchSponsorStatus(@Param('id') id: string) {
     try {
@@ -130,6 +144,7 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Patch('/switchPostStatus/:id')
   switchPostStatus(@Param('id') id: string) {
     try {
@@ -139,6 +154,8 @@ export class SponsorsController {
     }
   }
 
+  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Patch('/switchOffertStatus/:id')
   switchOffertStatus(@Param('id') id: string) {
     try {
@@ -148,3 +165,4 @@ export class SponsorsController {
     }
   }
 }
+

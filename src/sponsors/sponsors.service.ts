@@ -58,7 +58,15 @@ export class SponsorsService {
   }
 
   findAllSponsors() {
-    return this.prisma.sponsorsData.findMany();
+    return this.prisma.sponsorsData.findMany({
+      include: {
+        user: {
+          select: {
+            country: true,
+          },
+        },
+      },
+    });
   }
 
   findAllPosts() {
@@ -71,9 +79,22 @@ export class SponsorsService {
     return this.prisma.sponsorsOffert.findMany();
   }
 
+  async findOneSponsorUser(userId: string) {
+    const foundSponsor = await this.prisma.sponsorsData.findUnique({
+      where: { userId }, // Buscar por userId ya que es único en SponsorsData
+      include: {
+        user: true,
+        posts: true,
+        offers: true,
+      },
+    });
+
+    return foundSponsor;
+  }
+
   async findOneSponsor(id: string) {
     const foundSponsor = await this.prisma.sponsorsData.findUnique({
-      where: { userId: id },
+      where: { id },
       include: {
         user: true,
         posts: true,
@@ -180,3 +201,4 @@ export class SponsorsService {
     return foundOffert;
   }
 }
+

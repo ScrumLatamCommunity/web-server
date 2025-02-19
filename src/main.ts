@@ -4,6 +4,7 @@ import { envs } from './config/envs';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerConfig } from './config/swagger.config';
 import { LoggerService } from './config/logger.config';
+import { loggerGlobal } from './middlewares/logger.middleware';
 import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -28,6 +29,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+  app.use(loggerGlobal);
 
   SwaggerConfig.setupV1(app);
 
@@ -36,3 +38,4 @@ async function bootstrap() {
   await app.listen(port ?? 3000);
 }
 bootstrap();
+
