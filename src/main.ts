@@ -5,10 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerConfig } from './config/swagger.config';
 import { LoggerService } from './config/logger.config';
 import { loggerGlobal } from './middlewares/logger.middleware';
+import { join } from 'node:path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const { port } = envs;
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new LoggerService(),
   });
   app.enableCors({
@@ -30,6 +32,8 @@ async function bootstrap() {
   app.use(loggerGlobal);
 
   SwaggerConfig.setupV1(app);
+
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   await app.listen(port ?? 3000);
 }

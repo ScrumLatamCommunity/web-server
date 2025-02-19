@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Role, User, Status } from '@prisma/client';
@@ -10,6 +11,8 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
+  private readonly logger = new Logger(AdminService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -79,9 +82,7 @@ export class AdminService {
       throw new InternalServerErrorException('Error al crear el usuario.');
     }
   }
-
-  /**
-   * Obtiene estadísticas generales de los usuarios.
+  /*
    * @param filters - Filtros para la consulta.
    * Ejemplo: Número total de usuarios, desglose por país o membresía.
    */
@@ -98,9 +99,11 @@ export class AdminService {
       });
 
       stats[filter] = groupedData.map((item) => ({
-        [filter]: item[filter],
+        [filter]:
+          item[filter] +
+          ((item._count[filter] / totalUsers) * 100).toFixed(2) +
+          '%',
         count: item._count[filter],
-        percentage: ((item._count[filter] / totalUsers) * 100).toFixed(2) + '%',
       }));
     }
 
@@ -182,14 +185,33 @@ export class AdminService {
     if (filters.role) where.role = filters.role;
 
     const users = await this.prisma.user.findMany({
-      where,
-      include: { sponsorsData: true },
+      where: {
+        role: {
+          not: Role.ADMIN,
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        country: true,
+        membership: true,
+        role: true,
+        onboarding: true,
+        createdAt: true,
+        updatedAt: true,
+        sponsorsData: true,
+      },
+      orderBy: {
+        [sortBy || 'createdAt']: order,
+      },
     });
 
     if (sortBy) {
       users.sort((a, b) => {
         if (a[sortBy]! < b[sortBy]!) return order === 'asc' ? -1 : 1;
-        if (a[sortBy]! > b[sortBy]!) return order === 'asc' ? 1 : -1;
+        if (a[sortBy]! > b[sortBy]!) return order === 'desc' ? 1 : -1;
         return 0;
       });
     }
