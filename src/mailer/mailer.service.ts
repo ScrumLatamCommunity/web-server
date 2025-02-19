@@ -6,6 +6,7 @@ import {
 import * as nodemailer from 'nodemailer';
 import { envs } from 'src/config/envs';
 import { EmailTemplateType, emailTemplates } from './templates/email-templates';
+import { join } from 'node:path';
 
 @Injectable()
 export class MailerService {
@@ -72,6 +73,28 @@ export class MailerService {
         to,
         subject,
         html: htmlContent,
+        attachments: [
+          {
+            filename: 'logo-1.png',
+            path: join(__dirname, '..', '..', 'public/images/kit1.png'),
+          },
+          {
+            filename: 'logo-2.png',
+            path: join(__dirname, '..', '..', 'public/images/kit2.png'),
+          },
+          {
+            filename: 'fondo-1.pdf',
+            path: join(__dirname, '..', '..', 'public/images/kit3.pdf'),
+          },
+          {
+            filename: 'fondo-2.pdf',
+            path: join(__dirname, '..', '..', 'public/images/kit4.pdf'),
+          },
+          {
+            filename: 'fondo-3.pdf',
+            path: join(__dirname, '..', '..', 'public/images/kit5.pdf'),
+          },
+        ],
       };
 
       this.logger.log('Configuración del correo:', {
