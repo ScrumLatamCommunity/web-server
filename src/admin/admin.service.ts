@@ -58,7 +58,7 @@ export class AdminService {
               ? {
                   create: {
                     companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
-                    specialization: 'Sin especialización',
+                    specialization: ['Sin especialización'],
                     description: 'Descripción no proporcionada',
                     web: 'https://example.com',
                     phone: '', // 🔹 Asegurar que sea String
@@ -150,7 +150,7 @@ export class AdminService {
           data: {
             userId,
             companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
-            specialization: 'Sin especialización',
+            specialization: ['Sin especialización'],
             description: 'Descripción no proporcionada',
             web: 'https://example.com',
             phone: '', // 🔹 Asegurar que sea String

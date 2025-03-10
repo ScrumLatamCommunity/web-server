@@ -60,9 +60,9 @@ export class SponsorRegisterDto {
   @IsNotEmpty()
   companyName: string;
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  specialization: string;
+  specialization: string[];
 
   @IsString()
   @IsNotEmpty()

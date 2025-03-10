@@ -201,4 +201,3 @@ export class SponsorsService {
     return foundOffert;
   }
 }
-
