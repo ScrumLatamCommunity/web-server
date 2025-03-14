@@ -36,10 +36,6 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    if (!user.onboarding) {
-      throw new UnauthorizedException('Usuario no ha completado el onboarding');
-    }
-
     const payload = {
       sub: user.id,
       email: user.email,
