@@ -35,7 +35,7 @@ model SponsorsData {
   userId         String   @unique
   status         Status
   companyName    String
-  specialization String
+  specialization String[]
   description    String
   web            String
   phone          String

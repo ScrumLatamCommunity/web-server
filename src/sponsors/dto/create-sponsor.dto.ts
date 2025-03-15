@@ -21,9 +21,9 @@ export class CreateSponsorDto {
   @IsNotEmpty()
   companyName: string;
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  specialization: string;
+  specialization: string[];
 
   @IsString()
   @IsNotEmpty()

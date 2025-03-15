@@ -63,6 +63,7 @@ export class SponsorsService {
         user: {
           select: {
             country: true,
+            email: true,
           },
         },
       },
@@ -201,4 +202,3 @@ export class SponsorsService {
     return foundOffert;
   }
 }
-
