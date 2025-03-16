@@ -192,14 +192,16 @@ export class AuthService {
       data: { onboarding: completed },
     });
 
-    await this.mailerService.sendEmail(
-      user.email,
-      EmailTemplateType.COMPLETED_REGISTER,
-      {
-        userName: user.firstName,
-        url: `${process.env.FRONTEND_URL}/`,
-      },
-    );
+    setImmediate(() => {
+      this.mailerService.sendEmail(
+        user.email,
+        EmailTemplateType.COMPLETED_REGISTER,
+        {
+          userName: user.firstName,
+          url: `${process.env.FRONTEND_URL}/`,
+        },
+      );
+    });
 
     return user;
   }
