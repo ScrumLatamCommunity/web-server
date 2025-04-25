@@ -103,12 +103,47 @@ export class SponsorsService {
       },
     });
 
-    console.log('foundSponsor', foundSponsor);
     if (!foundSponsor) {
       throw new NotFoundException(`Sponsor with id ${id} not found`);
     }
 
-    return foundSponsor;
+    const today = new Date();
+
+    const expiredOffers = foundSponsor.offers.filter(
+      (offert) =>
+        new Date(offert.validUntil) < today && offert.status === 'ACTIVE',
+    );
+
+    if (expiredOffers.length > 0) {
+      await this.prisma.sponsorsOffert.updateMany({
+        where: {
+          id: { in: expiredOffers.map((offert) => offert.id) },
+        },
+        data: { status: 'INACTIVE' },
+      });
+    }
+
+    const expiredPosts = foundSponsor.posts.filter(
+      (post) => new Date(post.validUntil) < today && post.status === 'ACTIVE',
+    );
+
+    if (expiredPosts.length > 0) {
+      await this.prisma.sponsorsPost.updateMany({
+        where: {
+          id: { in: expiredPosts.map((post) => post.id) },
+        },
+        data: { status: 'INACTIVE' },
+      });
+    }
+
+    return this.prisma.sponsorsData.findUnique({
+      where: { id },
+      include: {
+        user: true,
+        posts: true,
+        offers: true,
+      },
+    });
   }
 
   findOnePost(id: string) {
