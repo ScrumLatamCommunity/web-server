@@ -17,6 +17,16 @@ export class SponsorsService {
     this.prisma.$connect();
   }
 
+  private cachedSponsors: any[] = [];
+  private lastShuffleTime: number = 0;
+
+  private shuffleArray(array: any[]) {
+    return array
+      .map((value) => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+  }
+
   createSponsor(createSponsorDto: CreateSponsorDto) {
     const sponsor = createSponsorDto;
     const newSponsor = this.prisma.sponsorsData.create({ data: sponsor });
@@ -57,17 +67,30 @@ export class SponsorsService {
     return newOffert;
   }
 
-  findAllSponsors() {
-    return this.prisma.sponsorsData.findMany({
-      include: {
-        user: {
-          select: {
-            country: true,
-            email: true,
+  async findAllSponsors() {
+    const now = Date.now();
+    const oneHour = 30 * 60 * 1000;
+
+    if (
+      now - this.lastShuffleTime > oneHour ||
+      this.cachedSponsors.length === 0
+    ) {
+      const sponsors = await this.prisma.sponsorsData.findMany({
+        include: {
+          user: {
+            select: {
+              country: true,
+              email: true,
+            },
           },
         },
-      },
-    });
+      });
+
+      this.cachedSponsors = this.shuffleArray(sponsors);
+      this.lastShuffleTime = now;
+    }
+
+    return this.cachedSponsors;
   }
 
   findAllPosts() {
@@ -179,7 +202,8 @@ export class SponsorsService {
       where: { id },
       data: updateSponsorDto,
     });
-
+    this.cachedSponsors = [];
+    this.lastShuffleTime = 0;
     return updatedSponsor;
   }
 
