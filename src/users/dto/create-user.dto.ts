@@ -4,6 +4,7 @@ import {
   IsStrongPassword,
   IsBoolean,
   MaxLength,
+  IsUrl,
 } from 'class-validator';
 
 export class CreateUserDto {
@@ -51,6 +52,10 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'The role is required' })
   @MaxLength(50, { message: 'The role must be less than 50 characters' })
   role: string = 'user';
+
+  @IsUrl()
+  @IsNotEmpty({ message: 'The profile picture URL is required' })
+  profilePictureUrl: string;
 
   @IsBoolean({ message: 'The onboarding field must be a boolean' })
   onboarding: boolean = false;

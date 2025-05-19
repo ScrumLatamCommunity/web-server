@@ -14,18 +14,19 @@ datasource db {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  firstName  String
-  lastName   String
-  username   String
-  email      String   @unique
-  password   String
-  country    String
-  membership String
-  role       Role     @default(USER)
-  onboarding Boolean  @default(false)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id                String   @id @default(uuid())
+  firstName         String
+  lastName          String
+  username          String
+  email             String   @unique
+  password          String
+  country           String
+  membership        String
+  role              Role     @default(USER)
+  profilePictureUrl String?
+  onboarding        Boolean  @default(false)
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
 
   sponsorsData SponsorsData?
 }

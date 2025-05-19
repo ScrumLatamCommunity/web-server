@@ -25,6 +25,7 @@ export class UsersService {
         password: pass,
         country,
         membership,
+        profilePictureUrl,
       } = createUserDto;
 
       const hashPassword = await bcrypt.hash(pass, 10);
@@ -37,6 +38,7 @@ export class UsersService {
           email,
           country,
           membership,
+          profilePictureUrl,
           password: hashPassword,
         },
       });
@@ -97,6 +99,22 @@ export class UsersService {
       }
 
       return user;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async setUserPhoto(userId: string, photoUrl: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: { id: userId },
+        data: { profilePictureUrl: photoUrl },
+      });
+
+      return {
+        message: 'Foto actualizada exitosamente',
+        photo: user.profilePictureUrl,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
