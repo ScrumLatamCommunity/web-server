@@ -169,15 +169,33 @@ export class SponsorsService {
   async updateSponsor(id: string, updateSponsorDto: UpdateSponsorDto) {
     const sponsorExists = await this.prisma.sponsorsData.findUnique({
       where: { id },
+      include: {
+        user: true,
+      },
     });
 
     if (!sponsorExists) {
       throw new NotFoundException(`Sponsor with id ${id} not found`);
     }
 
+    if (updateSponsorDto.country) {
+      await this.prisma.user.update({
+        where: { id: sponsorExists.userId },
+        data: {
+          country: updateSponsorDto.country,
+        }
+      });
+    }
+
+    // Removemos country del DTO antes de actualizar SponsorsData
+    const { country, ...sponsorData } = updateSponsorDto;
+
     const updatedSponsor = await this.prisma.sponsorsData.update({
       where: { id },
-      data: updateSponsorDto,
+      data: sponsorData,
+      include: {
+        user: true,
+      },
     });
 
     return updatedSponsor;

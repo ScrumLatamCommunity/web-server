@@ -5,7 +5,7 @@ export class User {
   username: string;
   email: string;
   password: string;
-  country: string;
+  country: string[];
   membership: string;
   role: string;
   onboarding: boolean;
