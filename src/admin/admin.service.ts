@@ -174,7 +174,7 @@ export class AdminService {
    * @param order - Orden de los resultados ('asc' o 'desc').
    */
   async getUsers(
-    filters: { country?: string; membership?: string; role?: string },
+    filters: { country?: string[]; membership?: string; role?: string },
     sortBy?: keyof User,
     order: 'asc' | 'desc' = 'asc',
   ) {
@@ -229,7 +229,7 @@ export class AdminService {
     data: Partial<{
       firstName: string;
       lastName: string;
-      country: string;
+      country: string[];
       membership: string;
     }>,
   ) {

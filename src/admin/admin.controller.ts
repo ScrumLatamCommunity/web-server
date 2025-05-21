@@ -71,13 +71,13 @@ export class AdminController {
    */
   @Get('users')
   @Get()
-  @ApiQuery({ name: 'country', required: false, type: String })
+  @ApiQuery({ name: 'country', required: false, type: [String] })
   @ApiQuery({ name: 'membership', required: false, type: String })
   @ApiQuery({ name: 'role', required: false, type: String })
   @ApiQuery({ name: 'sortBy', required: false, type: String })
   @ApiQuery({ name: 'order', required: false, enum: ['asc', 'desc'] })
   async getUsers(
-    @Query('country') country?: string,
+    @Query('country') country?: string[],
     @Query('membership') membership?: string,
     @Query('role') role?: string,
     @Query('sortBy') sortBy?: string,
@@ -102,7 +102,7 @@ export class AdminController {
     body: Partial<{
       firstName: string;
       lastName: string;
-      country: string;
+      country: string[];
       membership: string;
     }>,
   ) {
