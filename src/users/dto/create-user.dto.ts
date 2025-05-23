@@ -42,8 +42,7 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty({ message: 'The country is required' })
-  @MaxLength(100, { message: 'The country must be less than 100 characters' })
-  country: string;
+  country: string[];
 
   @IsNotEmpty({ message: 'The membership is required' })
   @MaxLength(50, { message: 'The membership must be less than 50 characters' })

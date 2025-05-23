@@ -20,7 +20,7 @@ model User {
   username          String
   email             String   @unique
   password          String
-  country           String
+  country           String[]
   membership        String
   role              Role     @default(USER)
   profilePictureUrl String?
@@ -40,6 +40,7 @@ model SponsorsData {
   description    String
   web            String
   phone          String
+  wppMessage     String?
   socials        String[]
   logo           String
   bannerWeb      String

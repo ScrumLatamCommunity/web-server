@@ -102,7 +102,7 @@ export class UsersService {
         lastName?: string;
         username?: string;
         email?: string;
-        country?: string;
+        country?: string[];
       } = {};
 
       if (updateUserDto.firstName) {
