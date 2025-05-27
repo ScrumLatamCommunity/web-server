@@ -40,7 +40,10 @@ export class RegisterDto {
   password: string;
 
   @IsNotEmpty({ message: 'The country is required' })
-  @MaxLength(100, { message: 'The country must be less than 100 characters' })
+  @MaxLength(100, {
+    each: true,
+    message: 'The country must be less than 100 characters',
+  })
   country: string[];
 
   @IsNotEmpty({ message: 'The membership is required' })
