@@ -92,6 +92,21 @@ model SponsorsOffert {
   sponsor SponsorsData @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
 }
 
+model Event {
+  id           String @id  @default(uuid())
+  type         String
+  title        String
+  description  String
+  date         DateTime
+  recurrency   String
+  time         String[]
+  inscriptions String[]
+  image        String
+  status       String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+}
+
 enum Status {
   ACTIVE
   INACTIVE
@@ -101,4 +116,5 @@ enum Role {
   ADMIN
   USER
   SPONSOR
+  EDITOR
 }
