@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { CreateActivityDto } from './dto/create-activity.dto';
-import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FilterStatusDto } from './dto/filter-status.dto';
 
 @Injectable()
 export class EventsService {
@@ -20,32 +19,53 @@ export class EventsService {
 
     if (expiredEvents.length > 0) {
       await this.prisma.event.updateMany({
+        where: {
+          id: {
+            in: expiredEvents.map((event) => event.id),
+          },
+        },
         data: { status: 'INACTIVE' },
       });
 
-      return await this.prisma.event.findMany();
+      return events.map((event) => {
+        if (expiredEvents.some((expired) => expired.id === event.id)) {
+          return { ...event, status: 'INACTIVE' };
+        }
+        return event;
+      });
     }
-    return;
+
+    return events;
   }
 
-  async findAllEvents() {
+  async findAllEvents(filterStatusDto?: FilterStatusDto) {
+    const event: any = {
+      type: 'EVENT',
+    };
+
+    if (filterStatusDto?.status) {
+      event.status = filterStatusDto.status;
+    }
+
     const events = await this.prisma.event.findMany({
-      where: {
-        status: 'ACTIVE',
-        type: 'EVENT',
-      },
+      where: event,
     });
 
     const filteredEvents = this.checkInactives(events);
     return filteredEvents;
   }
 
-  async findAllActivities() {
+  async findAllActivities(filterStatusDto?: FilterStatusDto) {
+    const activity: any = {
+      type: 'ACTIVITY',
+    };
+
+    if (filterStatusDto?.status) {
+      activity.status = filterStatusDto.status;
+    }
+
     const activities = await this.prisma.event.findMany({
-      where: {
-        status: 'ACTIVE',
-        type: 'ACTIVITY',
-      },
+      where: activity,
     });
     const filteredActivities = this.checkInactives(activities);
     return filteredActivities;
@@ -66,46 +86,65 @@ export class EventsService {
   }
 
   async createEvent(createEventDto: CreateEventDto) {
-    const event = await this.prisma.event.create({ data: createEventDto });
-    return event;
-  }
-
-  async createActivity(createActivityDto: CreateActivityDto) {
-    const activity = await this.prisma.event.create({
-      data: createActivityDto,
+    const event = await this.prisma.event.create({
+      data: {
+        ...createEventDto,
+        status: 'DRAFT',
+      },
     });
-    return activity;
+    return event;
   }
 
   async updateEvent(id: string, updateEventDto: UpdateEventDto) {
     const event = await this.prisma.event.update({
-      where: { id, type: 'EVENT' },
+      where: { id },
       data: updateEventDto,
     });
     return event;
   }
 
-  async updateActivity(id: string, updateActivityDto: UpdateActivityDto) {
-    const activity = await this.prisma.event.update({
-      where: { id, type: 'ACTIVITY' },
-      data: updateActivityDto,
+  async switchEventStatus(id: string) {
+    const foundEvent = await this.prisma.event.findUnique({
+      where: { id },
     });
-    return activity;
+    if (foundEvent.status == 'ACTIVE') {
+      const event = await this.prisma.event.update({
+        where: { id },
+        data: { status: 'INACTIVE' },
+      });
+      return event;
+    }
+    if (foundEvent.status == 'INACTIVE') {
+      const event = await this.prisma.event.update({
+        where: { id },
+        data: { status: 'ACTIVE' },
+      });
+      return event;
+    }
+    return;
   }
 
-  async disableEvent(id: string) {
+  async rejectEvent(id: string) {
     const event = await this.prisma.event.update({
-      where: { id, type: 'EVENT' },
-      data: { status: 'INACTIVE' },
+      where: { id },
+      data: { status: 'REJECTED' },
     });
     return event;
   }
 
-  async disableActivity(id: string) {
-    const activity = await this.prisma.event.update({
-      where: { id, type: 'ACTIVITY' },
-      data: { status: 'INACTIVE' },
+  async approveEvent(id: string) {
+    const event = await this.prisma.event.update({
+      where: { id },
+      data: { status: 'ACTIVE' },
     });
-    return activity;
+    return event;
+  }
+
+  async revisionEvent(id: string) {
+    const event = await this.prisma.event.update({
+      where: { id },
+      data: { status: 'REVISION' },
+    });
+    return event;
   }
 }

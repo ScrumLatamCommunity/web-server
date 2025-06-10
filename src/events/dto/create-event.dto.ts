@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CreateEventDto {
   @IsString()
@@ -16,7 +16,7 @@ export class CreateEventDto {
   @IsNotEmpty({ message: 'The date is required' })
   date: string;
 
-  @IsString()
+  @IsArray()
   @IsNotEmpty({ message: 'The array with the times is required' })
   time: string[];
 
@@ -33,6 +33,6 @@ export class CreateEventDto {
   type: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'The status is required' })
-  status: string;
+  @IsNotEmpty({ message: 'The link is required' })
+  link: string;
 }
