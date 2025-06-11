@@ -94,12 +94,10 @@ export class SponsorsService {
   }
 
   findAllPosts() {
-    console.log('GET /posts ejecutado');
     return this.prisma.sponsorsPost.findMany();
   }
 
   findAllOfferts() {
-    console.log('GET /posts ejecutado');
     return this.prisma.sponsorsOffert.findMany();
   }
 
@@ -206,11 +204,12 @@ export class SponsorsService {
         where: { id: sponsorExists.userId },
         data: {
           country: updateSponsorDto.country,
-        }
+        },
       });
     }
 
     // Removemos country del DTO antes de actualizar SponsorsData
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { country, ...sponsorData } = updateSponsorDto;
 
     const updatedSponsor = await this.prisma.sponsorsData.update({
