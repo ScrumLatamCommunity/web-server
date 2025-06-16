@@ -92,7 +92,7 @@ model SponsorsOffert {
   sponsor SponsorsData @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
 }
 
-model Event {
+model Activity {
   id           String @id  @default(uuid())
   type         String
   title        String

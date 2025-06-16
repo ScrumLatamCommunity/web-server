@@ -28,14 +28,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiBearerAuth()
 @ApiTags('users')
-@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
-
+  @UseGuards(AuthGuard)
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -46,17 +45,17 @@ export class UsersController {
   findAll() {
     return this.usersService.findAll();
   }
-
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
-
+  @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
-
+  @UseGuards(AuthGuard)
   // Endpoint para que el usuario autenticado actualice SU PROPIA foto de perfil
   @Patch('profile-picture/upload')
   @UseInterceptors(FileInterceptor('profilePicture')) // 'profilePicture' es el nombre del campo en FormData
@@ -77,7 +76,7 @@ export class UsersController {
     // Toda la lógica compleja ahora está en el servicio
     return this.usersService.updateUserProfilePicture(userId, file);
   }
-
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(+id);

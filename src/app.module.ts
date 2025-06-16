@@ -8,7 +8,7 @@ import { AdminModule } from './admin/admin.module';
 import { SponsorsModule } from './sponsors/sponsors.module';
 import { ImageModule } from './image/image.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { EventsModule } from './events/events.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { EventsModule } from './events/events.module';
     SponsorsModule,
     ImageModule,
     CloudinaryModule,
-    EventsModule,
+    ActivitiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

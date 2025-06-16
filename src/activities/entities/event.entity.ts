@@ -9,6 +9,8 @@ export class Events {
   inscriptions: string[];
   image: string;
   status: string;
+  link: string;
+  editor: string;
   createdAt: Date;
   updatedAt: Date;
 }
