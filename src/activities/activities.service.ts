@@ -19,7 +19,7 @@ export class ActivitiesService {
     );
 
     if (expiredActivities.length > 0) {
-      await this.prisma.event.updateMany({
+      await this.prisma.activity.updateMany({
         where: {
           id: {
             in: expiredActivities.map((activity) => activity.id),
@@ -46,7 +46,7 @@ export class ActivitiesService {
       activity.status = filterStatusDto.status;
     }
 
-    const activities = await this.prisma.event.findMany({
+    const activities = await this.prisma.activity.findMany({
       where: activity,
     });
 
@@ -61,7 +61,7 @@ export class ActivitiesService {
       activity.status = filterStatusDto.status;
     }
 
-    const activities = await this.prisma.event.findMany({
+    const activities = await this.prisma.activity.findMany({
       where: activity,
     });
 
@@ -69,14 +69,14 @@ export class ActivitiesService {
   }
 
   async findOneActivity(id: string) {
-    const activity = await this.prisma.event.findUnique({
+    const activity = await this.prisma.activity.findUnique({
       where: { id },
     });
     return activity;
   }
 
   async createActivity(createActivityDto: CreateActivityDto) {
-    const activity = await this.prisma.event.create({
+    const activity = await this.prisma.activity.create({
       data: {
         ...createActivityDto,
         status: 'DRAFT',
@@ -86,7 +86,7 @@ export class ActivitiesService {
   }
 
   async updateActivity(id: string, updateActivityDto: UpdateActivityDto) {
-    const activity = await this.prisma.event.update({
+    const activity = await this.prisma.activity.update({
       where: { id },
       data: updateActivityDto,
     });
@@ -94,18 +94,18 @@ export class ActivitiesService {
   }
 
   async switchActivityStatus(id: string) {
-    const foundActivity = await this.prisma.event.findUnique({
+    const foundActivity = await this.prisma.activity.findUnique({
       where: { id },
     });
     if (foundActivity.status == 'ACTIVE') {
-      const activity = await this.prisma.event.update({
+      const activity = await this.prisma.activity.update({
         where: { id },
         data: { status: 'INACTIVE' },
       });
       return activity;
     }
     if (foundActivity.status == 'INACTIVE') {
-      const activity = await this.prisma.event.update({
+      const activity = await this.prisma.activity.update({
         where: { id },
         data: { status: 'ACTIVE' },
       });
@@ -115,7 +115,7 @@ export class ActivitiesService {
   }
 
   async rejectActivity(id: string) {
-    const activity = await this.prisma.event.update({
+    const activity = await this.prisma.activity.update({
       where: { id },
       data: { status: 'REJECTED' },
     });
@@ -123,7 +123,7 @@ export class ActivitiesService {
   }
 
   async approveActivity(id: string) {
-    const activity = await this.prisma.event.update({
+    const activity = await this.prisma.activity.update({
       where: { id },
       data: { status: 'ACTIVE' },
     });
@@ -131,7 +131,7 @@ export class ActivitiesService {
   }
 
   async revisionActivity(id: string) {
-    const activity = await this.prisma.event.update({
+    const activity = await this.prisma.activity.update({
       where: { id },
       data: { status: 'REVISION' },
     });
