@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class CreateEventDto {
+export class CreateActivityDto {
   @IsString()
   @IsNotEmpty({ message: 'The title is required' })
   title: string;
