@@ -117,7 +117,7 @@ export class ActivitiesService {
   async rejectActivity(id: string) {
     const activity = await this.prisma.activity.update({
       where: { id },
-      data: { status: 'REJECTED' },
+      data: { status: 'INACTIVE' },
     });
     return activity;
   }
