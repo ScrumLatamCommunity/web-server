@@ -45,4 +45,8 @@ export class CreateActivityDto {
   @IsString()
   @IsNotEmpty({ message: 'The link is required' })
   link: string;
+
+  @IsString()
+  @IsOptional({ message: 'An observation of the activity' })
+  observation: string;
 }
