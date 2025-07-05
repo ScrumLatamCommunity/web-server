@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Query,
+  Delete,
 } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { FilterStatusDto } from './dto/filter-status.dto';
+import { RegisterActivityDto } from './dto/register-activity.dto';
 
 @Controller('activities')
 export class ActivitiesController {
@@ -62,5 +64,49 @@ export class ActivitiesController {
   @Patch('revision/:id')
   revisionActivity(@Param('id') id: string) {
     return this.activitiesService.revisionActivity(id);
+  }
+
+  /**
+   * Registra un usuario en una actividad
+   */
+  @Post('/:id/register')
+  registerUserToActivity(
+    @Param('id') activityId: string,
+    @Body() registerActivityDto: RegisterActivityDto,
+  ) {
+    return this.activitiesService.registerUserToActivity(
+      activityId,
+      registerActivityDto,
+    );
+  }
+
+  /**
+   * Elimina un usuario de una actividad
+   */
+  @Delete('/:id/unregister')
+  unregisterUserFromActivity(
+    @Param('id') activityId: string,
+    @Body() registerActivityDto: RegisterActivityDto,
+  ) {
+    return this.activitiesService.unregisterUserFromActivity(
+      activityId,
+      registerActivityDto,
+    );
+  }
+
+  /**
+   * Obtiene todas las actividades de un usuario
+   */
+  @Get('/user/:userId')
+  getActivitiesByUser(@Param('userId') userId: string) {
+    return this.activitiesService.getActivitiesByUser(userId);
+  }
+
+  /**
+   * Obtiene todos los usuarios de una actividad
+   */
+  @Get('/:id/users')
+  getUsersByActivity(@Param('id') activityId: string) {
+    return this.activitiesService.getUsersByActivity(activityId);
   }
 }

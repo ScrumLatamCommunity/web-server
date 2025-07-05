@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
@@ -77,6 +77,7 @@ export class UsersService {
       // Si el usuario no es SPONSOR, retornamos solo los datos básicos
       if (user.role !== 'SPONSOR') {
         const { sponsorsData, ...userData } = user;
+        console.log(sponsorsData);
         return userData;
       }
 
@@ -210,6 +211,7 @@ export class UsersService {
       }
 
       const { password, ...userResponse } = updatedUserWithPassword;
+      console.log(password);
       return userResponse;
     } catch (error) {
       if (error.code === 'P2025') {
