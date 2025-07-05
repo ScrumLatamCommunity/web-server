@@ -53,7 +53,15 @@ export class UsersService {
   }
 
   findAll() {
-    return this.prisma.user.findMany();
+    return this.prisma.user.findMany({
+      include: {
+        activities: {
+          include: {
+            users: true,
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {

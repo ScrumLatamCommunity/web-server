@@ -8,10 +8,15 @@ import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterStatusDto } from './dto/filter-status.dto';
 import { RegisterActivityDto } from './dto/register-activity.dto';
+import { MailerService } from 'src/mailer/mailer.service';
+import { envs } from 'src/config/envs';
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailerService: MailerService,
+  ) {
     this.prisma.$connect();
   }
 
@@ -223,6 +228,28 @@ export class ActivitiesService {
       },
     });
 
+    // Enviar correo de confirmación
+    try {
+      const userProfileUrl = `${envs.frontendUrl}/profile/activities`;
+
+      await this.mailerService.sendActivityRegistrationEmail(
+        user.email,
+        `${user.firstName} ${user.lastName}`,
+        {
+          title: activity.title,
+          description: activity.description,
+          date: activity.date.toISOString(),
+          time: activity.time,
+          link: activity.link,
+        },
+        userProfileUrl,
+      );
+    } catch (emailError) {
+      // Log del error pero no fallar la operación de registro
+      console.error('Error al enviar correo de confirmación:', emailError);
+      // Podrías agregar aquí lógica para reenviar el correo más tarde
+    }
+
     return {
       message: 'User successfully registered for activity',
       activity: updatedActivity,
@@ -310,7 +337,11 @@ export class ActivitiesService {
     const userWithActivities = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        activities: true,
+        activities: {
+          include: {
+            users: true,
+          },
+        },
       },
     });
 

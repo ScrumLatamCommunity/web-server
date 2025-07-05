@@ -9,7 +9,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  ParseUUIDPipe,
   UploadedFile,
   FileTypeValidator,
   MaxFileSizeValidator,
@@ -23,7 +22,6 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/auth/guard/guard.guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { UpdatePhotoDto } from './dto/update-photo-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiBearerAuth()

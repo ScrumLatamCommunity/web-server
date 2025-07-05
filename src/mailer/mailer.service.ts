@@ -6,6 +6,7 @@ import {
 import * as nodemailer from 'nodemailer';
 import { envs } from 'src/config/envs';
 import { EmailTemplateType, emailTemplates } from './templates/email-templates';
+import { CalendarLinksUtil } from './utils/calendar-links.util';
 import { join } from 'node:path';
 
 @Injectable()
@@ -133,5 +134,80 @@ export class MailerService {
     }
 
     await this.sendMail(to, template.subject, template.template(params));
+  }
+
+  async sendActivityRegistrationEmail(
+    userEmail: string,
+    userName: string,
+    activityData: {
+      title: string;
+      description: string;
+      date: string;
+      time: string[];
+      link: string;
+    },
+    userProfileUrl: string,
+  ): Promise<void> {
+    try {
+      // Formatear fecha y hora
+      const formattedDate = CalendarLinksUtil.formatActivityDate(
+        activityData.date,
+      );
+      const formattedTime = CalendarLinksUtil.formatActivityTime(
+        activityData.time,
+      );
+
+      // Crear fechas para el calendario (asumiendo duración de 2 horas si no se especifica)
+      const startDate = new Date(activityData.date);
+      const endDate = new Date(startDate);
+      endDate.setHours(endDate.getHours() + 2);
+
+      // Generar enlaces de calendario
+      const calendarLinks = CalendarLinksUtil.generateCalendarLinks({
+        title: activityData.title,
+        description: activityData.description,
+        startDate,
+        endDate,
+        location: activityData.link,
+      });
+
+      // Preparar parámetros para la plantilla
+      const templateParams = {
+        userName,
+        activityTitle: activityData.title,
+        activityDescription: activityData.description,
+        activityDate: formattedDate,
+        activityTime: formattedTime,
+        activityLink: activityData.link,
+        userProfileUrl,
+        calendarLinks,
+      };
+
+      // Personalizar el asunto del correo
+      const subject = emailTemplates[
+        EmailTemplateType.ACTIVITY_REGISTRATION
+      ].subject.replace('{{activityTitle}}', activityData.title);
+
+      // Generar el contenido HTML
+      const htmlContent =
+        emailTemplates[EmailTemplateType.ACTIVITY_REGISTRATION].template(
+          templateParams,
+        );
+
+      // Enviar el correo
+      await this.sendMail(userEmail, subject, htmlContent);
+
+      this.logger.log(
+        `Correo de confirmación de actividad enviado a ${userEmail} para la actividad: ${activityData.title}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error al enviar correo de confirmación de actividad: ${error.message}`,
+      );
+      throw new InternalServerErrorException(
+        'Error al enviar correo de confirmación de actividad',
+        error.message,
+      );
+    }
   }
 }
