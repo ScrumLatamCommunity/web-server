@@ -166,14 +166,21 @@ export class ActivitiesService {
   ) {
     const { userId } = registerActivityDto;
 
+    console.log('🚀 [REGISTRO] Iniciando proceso de registro');
+    console.log('📋 [REGISTRO] ActivityId:', activityId);
+    console.log('👤 [REGISTRO] UserId:', userId);
+
     // Verificar que la actividad existe
     const activity = await this.prisma.activity.findUnique({
       where: { id: activityId },
     });
 
     if (!activity) {
+      console.error('❌ [REGISTRO] Actividad no encontrada');
       throw new NotFoundException('Activity not found');
     }
+
+    console.log('✅ [REGISTRO] Actividad encontrada:', activity.title);
 
     // Verificar que el usuario existe
     const user = await this.prisma.user.findUnique({
@@ -181,13 +188,22 @@ export class ActivitiesService {
     });
 
     if (!user) {
+      console.error('❌ [REGISTRO] Usuario no encontrado');
       throw new NotFoundException('User not found');
     }
 
+    console.log('✅ [REGISTRO] Usuario encontrado:', user.email);
+
     // Verificar que la actividad esté activa
     if (activity.status !== 'ACTIVE') {
+      console.error(
+        '❌ [REGISTRO] Actividad no está activa. Status:',
+        activity.status,
+      );
       throw new ConflictException('Activity is not active for registration');
     }
+
+    console.log('✅ [REGISTRO] Actividad está activa');
 
     // Verificar que el usuario no esté ya registrado
     const existingRegistration = await this.prisma.activity.findFirst({
@@ -202,12 +218,17 @@ export class ActivitiesService {
     });
 
     if (existingRegistration) {
+      console.error('❌ [REGISTRO] Usuario ya está registrado');
       throw new ConflictException(
         'User is already registered for this activity',
       );
     }
 
+    console.log('✅ [REGISTRO] Usuario no está registrado previamente');
+
     // Registrar al usuario en la actividad
+    console.log('💾 [REGISTRO] Guardando registro en base de datos...');
+
     const updatedActivity = await this.prisma.activity.update({
       where: { id: activityId },
       data: {
@@ -228,9 +249,35 @@ export class ActivitiesService {
       },
     });
 
+    console.log(
+      '✅ [REGISTRO] Usuario registrado exitosamente en la actividad',
+    );
+    console.log(
+      '📊 [REGISTRO] Total usuarios registrados:',
+      updatedActivity.users.length,
+    );
+
     // Enviar correo de confirmación
+    console.log('📧 [EMAIL] Iniciando proceso de envío de correo...');
+
     try {
       const userProfileUrl = `${envs.frontendUrl}/profile/activities`;
+
+      console.log('🔗 [EMAIL] URL del perfil:', userProfileUrl);
+      console.log('📋 [EMAIL] Datos de la actividad:');
+      console.log('   - Título:', activity.title);
+      console.log(
+        '   - Descripción:',
+        activity.description.substring(0, 50) + '...',
+      );
+      console.log('   - Fecha:', activity.date.toISOString());
+      console.log('   - Hora:', activity.time);
+      console.log('   - Link:', activity.link);
+      console.log('👤 [EMAIL] Datos del usuario:');
+      console.log('   - Email:', user.email);
+      console.log('   - Nombre:', `${user.firstName} ${user.lastName}`);
+
+      console.log('🚀 [EMAIL] Llamando al servicio de mailer...');
 
       await this.mailerService.sendActivityRegistrationEmail(
         user.email,
@@ -244,11 +291,30 @@ export class ActivitiesService {
         },
         userProfileUrl,
       );
+
+      console.log('✅ [EMAIL] Correo enviado exitosamente');
     } catch (emailError) {
-      // Log del error pero no fallar la operación de registro
-      console.error('Error al enviar correo de confirmación:', emailError);
-      // Podrías agregar aquí lógica para reenviar el correo más tarde
+      console.error('❌ [EMAIL] Error detallado al enviar correo:');
+      console.error('   - Mensaje:', emailError.message);
+      console.error('   - Stack:', emailError.stack);
+      console.error('   - Tipo de error:', emailError.constructor.name);
+
+      // Log adicional para errores específicos
+      if (emailError.code) {
+        console.error('   - Código de error:', emailError.code);
+      }
+
+      if (emailError.response) {
+        console.error('   - Respuesta del servidor:', emailError.response);
+      }
+
+      // Importante: NO relanzar el error para que el registro se complete
+      console.log(
+        '⚠️ [EMAIL] Continuando con el registro a pesar del error de correo',
+      );
     }
+
+    console.log('🎉 [REGISTRO] Proceso completado exitosamente');
 
     return {
       message: 'User successfully registered for activity',
