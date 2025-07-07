@@ -7,7 +7,6 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterStatusDto } from './dto/filter-status.dto';
-import { FilterTypeDto } from './dto/filter-type.dto';
 import { FilterActivitiesDto } from './dto/filter-activities.dto';
 import { RegisterActivityDto } from './dto/register-activity.dto';
 import { MailerService } from 'src/mailer/mailer.service';
