@@ -15,6 +15,7 @@ interface EnvVars {
   TOKEN_CLOUDFLARE: string;
   PREDETERMINADO: string;
   UNION_EUROPEA: string;
+  FRONTEND_URL: string;
 }
 
 const envsSchema = joi
@@ -32,6 +33,7 @@ const envsSchema = joi
     TOKEN_CLOUDFLARE: joi.string().required(),
     PREDETERMINADO: joi.string().required(),
     UNION_EUROPEA: joi.string().required(),
+    FRONTEND_URL: joi.string().optional().default('https://scrumlatam.com'),
   })
   .unknown();
 
@@ -57,4 +59,5 @@ export const envs = {
   predeterminado: envVars.PREDETERMINADO,
   tokenCloudflare: envVars.TOKEN_CLOUDFLARE,
   unionEuropea: envVars.UNION_EUROPEA,
+  frontendUrl: envVars.FRONTEND_URL,
 };
