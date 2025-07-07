@@ -50,8 +50,13 @@ export class ActivitiesService {
       where: activity,
     });
 
-    const filteredActivities = this.checkInactives(activities);
-    return filteredActivities;
+    await this.checkInactives(activities);
+
+    const activeActivities = await this.prisma.activity.findMany({
+      where: { status: 'ACTIVE' },
+    });
+
+    return activeActivities;
   }
 
   async findAllActivities(filterStatusDto?: FilterStatusDto) {
