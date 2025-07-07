@@ -7,6 +7,8 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterStatusDto } from './dto/filter-status.dto';
+import { FilterTypeDto } from './dto/filter-type.dto';
+import { FilterActivitiesDto } from './dto/filter-activities.dto';
 import { RegisterActivityDto } from './dto/register-activity.dto';
 import { MailerService } from 'src/mailer/mailer.service';
 import { envs } from 'src/config/envs';
@@ -64,15 +66,19 @@ export class ActivitiesService {
     return filteredActivities;
   }
 
-  async findAllActivities(filterStatusDto?: FilterStatusDto) {
-    const activity: any = {};
+  async findAllActivities(filterActivitiesDto?: FilterActivitiesDto) {
+    const where: any = {};
 
-    if (filterStatusDto?.status) {
-      activity.status = filterStatusDto.status;
+    if (filterActivitiesDto?.status) {
+      where.status = filterActivitiesDto.status;
+    }
+
+    if (filterActivitiesDto?.type) {
+      where.type = filterActivitiesDto.type;
     }
 
     const activities = await this.prisma.activity.findMany({
-      where: activity,
+      where,
     });
 
     return activities;
