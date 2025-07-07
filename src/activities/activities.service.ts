@@ -7,7 +7,6 @@ import { CreateActivityDto } from './dto/create-activity.dto';
 import { UpdateActivityDto } from './dto/update-activity.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FilterStatusDto } from './dto/filter-status.dto';
-import { FilterTypeDto } from './dto/filter-type.dto';
 import { FilterActivitiesDto } from './dto/filter-activities.dto';
 import { RegisterActivityDto } from './dto/register-activity.dto';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -62,8 +61,13 @@ export class ActivitiesService {
       where: activity,
     });
 
-    const filteredActivities = this.checkInactives(activities);
-    return filteredActivities;
+    await this.checkInactives(activities);
+
+    const activeActivities = await this.prisma.activity.findMany({
+      where: { status: 'ACTIVE' },
+    });
+
+    return activeActivities;
   }
 
   async findAllActivities(filterActivitiesDto?: FilterActivitiesDto) {
@@ -145,7 +149,7 @@ export class ActivitiesService {
   async rejectActivity(id: string) {
     const activity = await this.prisma.activity.update({
       where: { id },
-      data: { status: 'REJECTED' },
+      data: { status: 'INACTIVE' },
     });
     return activity;
   }

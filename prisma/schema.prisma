@@ -96,9 +96,9 @@ model Activity {
   status       String
   link         String
   facilitator  String?
+  observation  String?
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
-  observation  String?
   users        User[]
 }
 

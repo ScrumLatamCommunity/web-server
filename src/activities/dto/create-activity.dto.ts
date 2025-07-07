@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 export class CreateActivityDto {
   @IsString()
@@ -25,6 +31,10 @@ export class CreateActivityDto {
   recurrency: string;
 
   @IsString()
+  @IsOptional({ message: 'Facilitator needed' })
+  facilitator: string;
+
+  @IsString()
   @IsNotEmpty({ message: 'The image is required' })
   image: string;
 
@@ -35,4 +45,8 @@ export class CreateActivityDto {
   @IsString()
   @IsNotEmpty({ message: 'The link is required' })
   link: string;
+
+  @IsString()
+  @IsOptional({ message: 'An observation of the activity' })
+  observation: string;
 }
