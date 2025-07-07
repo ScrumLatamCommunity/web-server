@@ -1,2 +1,3 @@
 -- AlterTable
-ALTER TABLE "Activity" ADD COLUMN     "observation" TEXT;
+ALTER TABLE "Activity" ADD COLUMN "observation" TEXT; 
+
