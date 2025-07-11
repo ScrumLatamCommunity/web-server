@@ -453,4 +453,19 @@ export class ActivitiesService {
 
     return activityWithUsers.users;
   }
+
+  async pendientActivity(id: string) {
+    const activity = await this.prisma.activity.update({
+      where: { id },
+      data: { status: 'DRAFT' },
+    });
+    return activity;
+  }
+
+  async deleteActivity(id: string) {
+    await this.prisma.activity.delete({
+      where: { id },
+    });
+    return;
+  }
 }
