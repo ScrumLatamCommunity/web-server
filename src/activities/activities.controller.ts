@@ -7,7 +7,6 @@ import {
   Param,
   Query,
   Delete,
-  Delete,
 } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
