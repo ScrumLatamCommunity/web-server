@@ -7,6 +7,7 @@ import {
   Param,
   Query,
   Delete,
+  Delete,
 } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
 import { CreateActivityDto } from './dto/create-activity.dto';
@@ -109,5 +110,15 @@ export class ActivitiesController {
   @Get('/:id/users')
   getUsersByActivity(@Param('id') activityId: string) {
     return this.activitiesService.getUsersByActivity(activityId);
+  }
+
+  @Patch('id')
+  pendientActivity(@Param('id') id: string) {
+    return this.activitiesService.pendientActivity(id);
+  }
+
+  @Delete('delete/:id')
+  deleteActivity(@Param('id') id: string) {
+    return this.activitiesService.deleteActivity(id);
   }
 }
