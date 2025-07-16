@@ -31,7 +31,7 @@ model SponsorsData {
   userId         String           @unique
   status         Status
   companyName    String
-  description    String
+  descriptions   SponsorDescription[]
   web            String
   phone          String
   socials        String[]
@@ -45,6 +45,7 @@ model SponsorsData {
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   offers         SponsorsOffert[]
   posts          SponsorsPost[]
+  certificates    Certificate[]    @relation("SponsorCertificates")
 }
 
 model SponsorsPost {
@@ -83,6 +84,15 @@ model SponsorsOffert {
   sponsor     SponsorsData @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
 }
 
+model SponsorDescription {
+  id          String        @id @default(uuid())
+  sponsorId   String
+  title       String
+  description String
+
+  sponsor     SponsorsData  @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+}
+
 model Activity {
   id           String   @id @default(uuid())
   type         String
@@ -100,6 +110,13 @@ model Activity {
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
   users        User[]
+}
+
+model Certificate {
+  id        String              @id @default(uuid())
+  title     String
+  url       String
+  sponsors  SponsorsData[]      @relation("SponsorCertificates")
 }
 
 enum Status {

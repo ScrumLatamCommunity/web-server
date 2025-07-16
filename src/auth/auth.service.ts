@@ -160,13 +160,14 @@ export class AuthService {
       status,
       companyName,
       specialization,
-      description,
+      descriptions: description,
       web,
       phone,
       socials,
       logo,
       bannerWeb,
       bannerMobile,
+      certificatesSponsor: [],
     });
 
     const newSponsorData = await this.prisma.sponsorsData.findUnique({

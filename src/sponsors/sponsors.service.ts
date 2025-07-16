@@ -10,6 +10,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Status } from '@prisma/client';
 import { CreateSponsorsOffertDto } from './dto/create-offert.dto';
 import { CreateSponsorsPostDto } from './dto/create-post.dto';
+import { RemoveCertificatesDto } from './dto/remove-certificates.dto';
 
 @Injectable()
 export class SponsorsService {
@@ -27,10 +28,80 @@ export class SponsorsService {
       .map(({ value }) => value);
   }
 
-  createSponsor(createSponsorDto: CreateSponsorDto) {
-    const sponsor = createSponsorDto;
-    const newSponsor = this.prisma.sponsorsData.create({ data: sponsor });
-    return newSponsor;
+  async createSponsor(createSponsorDto: CreateSponsorDto) {
+    const { certificatesSponsor, descriptions, ...sponsorData } =
+      createSponsorDto;
+
+    // 1. Crear sponsor
+    const newSponsor = await this.prisma.sponsorsData.create({
+      data: sponsorData,
+    });
+
+    // 2. Crear descripciones
+    if (descriptions?.length) {
+      await this.prisma.sponsorDescription.createMany({
+        data: descriptions.map((desc) => ({
+          sponsorId: newSponsor.id,
+          title: desc.title,
+          description: desc.description,
+        })),
+      });
+    }
+
+    // 3. Manejar certificados
+    let allCertificates = [];
+
+    if (certificatesSponsor?.length) {
+      // Buscar existentes
+      const existingCertificates = await this.prisma.certificate.findMany({
+        where: {
+          title: { in: certificatesSponsor.map((c) => c.title) },
+        },
+      });
+
+      const existingTitles = existingCertificates.map((c) => c.title);
+
+      // Detectar nuevos
+      const newCertificates = certificatesSponsor.filter(
+        (cert) => !existingTitles.includes(cert.title),
+      );
+
+      const newlyCreatedCerts = [];
+      for (const cert of newCertificates) {
+        const created = await this.prisma.certificate.create({
+          data: {
+            title: cert.title,
+            url: cert.url,
+          },
+        });
+        newlyCreatedCerts.push(created);
+      }
+
+      allCertificates = [...existingCertificates, ...newlyCreatedCerts];
+
+      // Conectar certificados al sponsor
+      if (allCertificates.length) {
+        await this.prisma.sponsorsData.update({
+          where: { id: newSponsor.id },
+          data: {
+            certificates: {
+              connect: allCertificates.map((cert) => ({ id: cert.id })),
+            },
+          },
+        });
+      }
+    }
+
+    // Opcional: devolver el sponsor con relaciones
+    const sponsorWithRelations = await this.prisma.sponsorsData.findUnique({
+      where: { id: newSponsor.id },
+      include: {
+        descriptions: true,
+        certificates: true,
+      },
+    });
+
+    return sponsorWithRelations;
   }
 
   createPost(createSponsorPostDto: CreateSponsorsPostDto) {
@@ -83,6 +154,8 @@ export class SponsorsService {
               email: true,
             },
           },
+          descriptions: true,
+          certificates: true,
         },
       });
 
@@ -108,6 +181,8 @@ export class SponsorsService {
         user: true,
         posts: true,
         offers: true,
+        descriptions: true,
+        certificates: true,
       },
     });
 
@@ -121,6 +196,8 @@ export class SponsorsService {
         user: true,
         posts: true,
         offers: true,
+        descriptions: true,
+        certificates: true,
       },
     });
 
@@ -163,6 +240,8 @@ export class SponsorsService {
         user: true,
         posts: true,
         offers: true,
+        descriptions: true,
+        certificates: true,
       },
     });
   }
@@ -208,19 +287,77 @@ export class SponsorsService {
       });
     }
 
-    // Removemos country del DTO antes de actualizar SponsorsData
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { country, ...sponsorData } = updateSponsorDto;
+    const {
+      userId, // ❌ No se puede actualizar
+      descriptions,
+      certificatesSponsor,
+      country,
+      ...sponsorData
+    } = updateSponsorDto;
 
+    // Actualizar datos escalares
     const updatedSponsor = await this.prisma.sponsorsData.update({
       where: { id },
       data: sponsorData,
       include: {
         user: true,
+        descriptions: true,
+        certificates: true,
       },
     });
+
+    // Actualizar descripciones
+    if (descriptions) {
+      await this.prisma.sponsorDescription.deleteMany({
+        where: { sponsorId: id },
+      });
+
+      if (descriptions.length > 0) {
+        await this.prisma.sponsorDescription.createMany({
+          data: descriptions.map((desc) => ({
+            sponsorId: id,
+            title: desc.title,
+            description: desc.description,
+          })),
+        });
+      }
+    }
+
+    // Actualizar certificados
+    if (certificatesSponsor) {
+      // desconectar todos
+      await this.prisma.sponsorsData.update({
+        where: { id },
+        data: {
+          certificates: {
+            set: [],
+          },
+        },
+      });
+
+      if (certificatesSponsor.length > 0) {
+        const certs = await this.prisma.certificate.findMany({
+          where: {
+            title: {
+              in: certificatesSponsor.map((c) => c.title),
+            },
+          },
+        });
+
+        await this.prisma.sponsorsData.update({
+          where: { id },
+          data: {
+            certificates: {
+              connect: certs.map((c) => ({ id: c.id })),
+            },
+          },
+        });
+      }
+    }
+
     this.cachedSponsors = [];
     this.lastShuffleTime = 0;
+
     return updatedSponsor;
   }
 
@@ -276,5 +413,42 @@ export class SponsorsService {
       data: foundOffert,
     });
     return foundOffert;
+  }
+
+  async getAllCertificates() {
+    return this.prisma.certificate.findMany({
+      select: {
+        id: true,
+        title: true,
+        url: true,
+      },
+    });
+  }
+
+  async removeCertificatesFromSponsor(
+    sponsorId: string,
+    dto: RemoveCertificatesDto,
+  ) {
+    const sponsorExists = await this.prisma.sponsorsData.findUnique({
+      where: { id: sponsorId },
+    });
+
+    if (!sponsorExists) {
+      throw new NotFoundException(`Sponsor with id ${sponsorId} not found`);
+    }
+
+    await this.prisma.sponsorsData.update({
+      where: { id: sponsorId },
+      data: {
+        certificates: {
+          disconnect: dto.certificateIds.map((id) => ({ id })),
+        },
+      },
+    });
+
+    return {
+      message: `Certificates removed from sponsor ${sponsorId}`,
+      removedCertificates: dto.certificateIds,
+    };
   }
 }
