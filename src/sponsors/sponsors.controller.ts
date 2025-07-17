@@ -8,6 +8,7 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { SponsorsService } from './sponsors.service';
 import { CreateSponsorDto } from './dto/create-sponsor.dto';
@@ -17,6 +18,7 @@ import { CreateSponsorsOffertDto } from './dto/create-offert.dto';
 import { AuthGuard } from 'src/auth/guard/guard.guard';
 import { Roles } from 'src/auth/decorator/roles.decorator';
 import { Role } from '@prisma/client';
+import { RemoveCertificatesDto } from './dto/remove-certificates.dto';
 
 @Roles(Role.SPONSOR, Role.ADMIN)
 @Controller('sponsors')
@@ -163,5 +165,18 @@ export class SponsorsController {
     } catch (error) {
       return new HttpException(error, HttpStatus.NOT_FOUND);
     }
+  }
+
+  @Patch('/remove-certificates/:id')
+  async removeCertificates(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: RemoveCertificatesDto,
+  ) {
+    return this.sponsorsService.removeCertificatesFromSponsor(id, dto);
+  }
+
+  @Get('all/certificates')
+  async getAllCertificates() {
+    return this.sponsorsService.getAllCertificates();
   }
 }
