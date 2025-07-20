@@ -59,7 +59,14 @@ export class AdminService {
                   create: {
                     companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
                     specialization: ['Sin especialización'],
-                    description: 'Descripción no proporcionada',
+                    descriptions: {
+                      create: [
+                        {
+                          title: 'Descripción predeterminada',
+                          description: 'Descripción no proporcionada',
+                        },
+                      ],
+                    },
                     web: 'https://example.com',
                     phone: '', // 🔹 Asegurar que sea String
                     socials: [],
@@ -151,7 +158,14 @@ export class AdminService {
             userId,
             companyName: 'Empresa sin nombre', // 🔹 Dato obligatorio
             specialization: ['Sin especialización'],
-            description: 'Descripción no proporcionada',
+            descriptions: {
+              create: [
+                {
+                  title: 'Descripción predeterminada',
+                  description: 'Descripción no proporcionada',
+                },
+              ],
+            },
             web: 'https://example.com',
             phone: '', // 🔹 Asegurar que sea String
             socials: [],

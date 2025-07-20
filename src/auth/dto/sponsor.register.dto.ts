@@ -9,6 +9,7 @@ import {
   IsUrl,
   MaxLength,
 } from 'class-validator';
+import { SponsorDescriptionDto } from 'src/sponsors/dto/create-sponsor.dto';
 
 export class SponsorRegisterDto {
   @IsNotEmpty({ message: 'The first name is required' })
@@ -65,7 +66,7 @@ export class SponsorRegisterDto {
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description: SponsorDescriptionDto[];
 
   @IsUrl()
   @IsNotEmpty()

@@ -5,8 +5,24 @@ import {
   IsEnum,
   IsArray,
   IsUrl,
+  ValidateNested,
+  ArrayMaxSize,
+  ArrayMinSize,
 } from 'class-validator';
 import { Status } from '@prisma/client';
+import { CertificateDto } from './certificate.dto';
+import { Type } from 'class-transformer';
+import { Optional } from '@nestjs/common';
+
+export class SponsorDescriptionDto {
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+}
 
 export class CreateSponsorDto {
   @IsUUID()
@@ -25,9 +41,12 @@ export class CreateSponsorDto {
   @IsNotEmpty()
   specialization: string[];
 
-  @IsString()
-  @IsNotEmpty()
-  description: string;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(3)
+  @Type(() => SponsorDescriptionDto)
+  descriptions: SponsorDescriptionDto[];
 
   @IsUrl()
   @IsNotEmpty()
@@ -52,4 +71,10 @@ export class CreateSponsorDto {
   @IsUrl()
   @IsNotEmpty()
   bannerMobile: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CertificateDto)
+  @Optional()
+  certificatesSponsor: CertificateDto[];
 }
