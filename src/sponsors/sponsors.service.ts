@@ -233,8 +233,7 @@ export class SponsorsService {
         data: { status: 'INACTIVE' },
       });
     }
-
-    return this.prisma.sponsorsData.findUnique({
+    const sponsor = this.prisma.sponsorsData.findUnique({
       where: { id },
       include: {
         user: true,
@@ -244,6 +243,8 @@ export class SponsorsService {
         certificates: true,
       },
     });
+    console.log(sponsor);
+    return sponsor;
   }
 
   findOnePost(id: string) {
@@ -423,6 +424,14 @@ export class SponsorsService {
         url: true,
       },
     });
+  }
+
+  async getCertificatesBySponsor(sponsorId: string) {
+    const sponsor = await this.prisma.sponsorsData.findUnique({
+      where: { id: sponsorId },
+      include: { certificates: true },
+    });
+    return sponsor?.certificates ?? [];
   }
 
   async removeCertificatesFromSponsor(
