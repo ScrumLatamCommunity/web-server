@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -296,17 +297,6 @@ export class SponsorsService {
       ...sponsorData
     } = updateSponsorDto;
 
-    // Actualizar datos escalares
-    const updatedSponsor = await this.prisma.sponsorsData.update({
-      where: { id },
-      data: sponsorData,
-      include: {
-        user: true,
-        descriptions: true,
-        certificates: true,
-      },
-    });
-
     // Actualizar descripciones
     if (descriptions) {
       await this.prisma.sponsorDescription.deleteMany({
@@ -324,42 +314,56 @@ export class SponsorsService {
       }
     }
 
-    // Actualizar certificados
     if (certificatesSponsor) {
-      // desconectar todos
       await this.prisma.sponsorsData.update({
         where: { id },
-        data: {
-          certificates: {
-            set: [],
-          },
-        },
+        data: { certificates: { set: [] } },
       });
 
-      if (certificatesSponsor.length > 0) {
-        const certs = await this.prisma.certificate.findMany({
+      const certs: any[] = [];
+      for (const cert of certificatesSponsor) {
+        let existing = await this.prisma.certificate.findFirst({
           where: {
-            title: {
-              in: certificatesSponsor.map((c) => c.title),
-            },
+            title: cert.title,
+            url: cert.url,
           },
         });
 
+        if (!existing) {
+          existing = await this.prisma.certificate.create({
+            data: {
+              title: cert.title,
+              url: cert.url,
+            },
+          });
+        }
+
+        certs.push(existing);
+      }
+
+      if (certs.length > 0) {
         await this.prisma.sponsorsData.update({
           where: { id },
           data: {
             certificates: {
-              connect: certs.map((c) => ({ id: c.id })),
+              connect: certs.map((cert) => ({ id: cert.id })),
             },
           },
         });
       }
     }
 
+    await this.prisma.sponsorsData.update({
+      where: { id },
+      data: {
+        ...sponsorData,
+      },
+    });
+
     this.cachedSponsors = [];
     this.lastShuffleTime = 0;
 
-    return updatedSponsor;
+    return updateSponsorDto;
   }
 
   async switchSponsorStatus(id: string) {
