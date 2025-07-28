@@ -36,7 +36,6 @@ export class SponsorsController {
 
   @Get('/posts')
   findAllPosts() {
-    console.log('GET /posts ejecutado');
     try {
       return this.sponsorsService.findAllPosts();
     } catch (error) {
@@ -55,7 +54,6 @@ export class SponsorsController {
 
   @Get('/offerts')
   findAllOffert() {
-    console.log('GET /posts ejecutado');
     try {
       return this.sponsorsService.findAllOfferts();
     } catch (error) {
@@ -84,7 +82,6 @@ export class SponsorsController {
 
   @Get(':id')
   findOneSponsor(@Param('id') id: string) {
-    console.log('GET /:id ejecutado', id);
     try {
       return this.sponsorsService.findOneSponsor(id);
     } catch (error) {
@@ -178,5 +175,14 @@ export class SponsorsController {
   @Get('all/certificates')
   async getAllCertificates() {
     return this.sponsorsService.getAllCertificates();
+  }
+
+  @Get(':id/certificates')
+  async getCertificatesBySponsor(@Param('id') sponsorId: string) {
+    try {
+      return await this.sponsorsService.getCertificatesBySponsor(sponsorId);
+    } catch (error) {
+      return new HttpException(error, HttpStatus.NOT_FOUND);
+    }
   }
 }
