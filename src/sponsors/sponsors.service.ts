@@ -352,6 +352,13 @@ export class SponsorsService {
       }
     }
 
+    await this.prisma.sponsorsData.update({
+      where: { id },
+      data: {
+        ...sponsorData,
+      },
+    });
+
     this.cachedSponsors = [];
     this.lastShuffleTime = 0;
 
