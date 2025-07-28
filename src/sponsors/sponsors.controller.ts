@@ -179,4 +179,9 @@ export class SponsorsController {
   async getAllCertificates() {
     return this.sponsorsService.getAllCertificates();
   }
+
+  @Get(':id/posts')
+  async getPostsBySponsorId(@Param('id', ParseUUIDPipe) sponsorId: string) {
+    return this.sponsorsService.getPostsBySponsorId(sponsorId);
+  }
 }

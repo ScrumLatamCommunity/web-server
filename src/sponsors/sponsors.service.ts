@@ -455,4 +455,19 @@ export class SponsorsService {
       removedCertificates: dto.certificateIds,
     };
   }
+
+  async getPostsBySponsorId(sponsorId: string) {
+    const sponsor = await this.prisma.sponsorsData.findUnique({
+      where: { id: sponsorId },
+      include: {
+        posts: true,
+      },
+    });
+
+    if (!sponsor) {
+      throw new Error('Sponsor no encontrado');
+    }
+
+    return sponsor.posts;
+  }
 }
