@@ -116,6 +116,7 @@ export class UsersService {
         username?: string;
         email?: string;
         country?: string[];
+        profilePictureUrl?: string;
       } = {};
 
       if (updateUserDto.firstName) {
@@ -135,6 +136,9 @@ export class UsersService {
 
       if (updateUserDto.country) {
         dataToUpdate.country = updateUserDto.country;
+      }
+      if (updateUserDto.profilePictureUrl) {
+        dataToUpdate.profilePictureUrl = updateUserDto.profilePictureUrl;
       }
 
       if (Object.keys(dataToUpdate).length === 0) {
