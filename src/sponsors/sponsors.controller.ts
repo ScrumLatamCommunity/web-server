@@ -177,12 +177,8 @@ export class SponsorsController {
     return this.sponsorsService.getAllCertificates();
   }
 
-  @Get(':id/certificates')
-  async getCertificatesBySponsor(@Param('id') sponsorId: string) {
-    try {
-      return await this.sponsorsService.getCertificatesBySponsor(sponsorId);
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
+  @Get(':id/posts')
+  async getPostsBySponsorId(@Param('id', ParseUUIDPipe) sponsorId: string) {
+    return this.sponsorsService.getPostsBySponsorId(sponsorId);
   }
 }
