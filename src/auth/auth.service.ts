@@ -11,6 +11,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { MailerService } from 'src/mailer/mailer.service';
 import { EmailTemplateType } from 'src/mailer/templates/email-templates';
 import { SponsorsService } from 'src/sponsors/sponsors.service';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -36,11 +37,30 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const payload = {
+    // Obtener datos adicionales si es un sponsor
+    let sponsorData = null;
+    if (user.role === 'SPONSOR') {
+      sponsorData = await this.prisma.sponsorsData.findUnique({
+        where: { userId: user.id },
+        include: {
+          descriptions: true,
+          certificates: true,
+        },
+      });
+    }
+
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       role: user.role,
       onboarding: user.onboarding,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      username: user.username,
+      country: user.country,
+      membership: user.membership,
+      profilePictureUrl: user.profilePictureUrl,
+      sponsorData: sponsorData,
     };
 
     return {
@@ -88,7 +108,27 @@ export class AuthService {
         throw new InternalServerErrorException();
       }
 
-      return user;
+      // Generar token JWT con todos los datos del usuario
+      const payload: JwtPayload = {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+        onboarding: user.onboarding,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        country: user.country,
+        membership: user.membership,
+        profilePictureUrl: user.profilePictureUrl,
+        sponsorData: null,
+      };
+
+      const access_token = await this.jwtService.signAsync(payload);
+
+      return {
+        user,
+        access_token,
+      };
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -172,12 +212,34 @@ export class AuthService {
 
     const newSponsorData = await this.prisma.sponsorsData.findUnique({
       where: { userId: id },
+      include: {
+        descriptions: true,
+        certificates: true,
+      },
     });
+
+    // Generar token JWT con todos los datos del sponsor
+    const payload: JwtPayload = {
+      sub: newSponsor.id,
+      email: newSponsor.email,
+      role: newSponsor.role,
+      onboarding: newSponsor.onboarding,
+      firstName: newSponsor.firstName,
+      lastName: newSponsor.lastName,
+      username: newSponsor.username,
+      country: newSponsor.country,
+      membership: newSponsor.membership,
+      profilePictureUrl: newSponsor.profilePictureUrl,
+      sponsorData: newSponsorData,
+    };
+
+    const access_token = await this.jwtService.signAsync(payload);
 
     return {
       message: 'Usuario registrado exitosamente',
       newSponsor,
       newSponsorData,
+      access_token,
     };
   }
 

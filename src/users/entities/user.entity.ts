@@ -9,4 +9,8 @@ export class User {
   membership: string;
   role: string;
   onboarding: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  profilePictureUrl?: string;
+  profilePictureCloudinaryId?: string;
 }
