@@ -414,8 +414,17 @@ export class ActivitiesService {
       where: { id: userId },
       include: {
         activities: {
+          where: {
+            status: 'ACTIVE',
+            date: {
+              gte: new Date(),
+            },
+          },
           include: {
             users: true,
+          },
+          orderBy: {
+            date: 'asc',
           },
         },
       },
