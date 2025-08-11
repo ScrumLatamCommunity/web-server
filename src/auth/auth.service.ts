@@ -250,11 +250,13 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    await this.prisma.user.update({
+    // Actualizar y obtener el usuario actualizado
+    const updatedUser = await this.prisma.user.update({
       where: { id: user.id },
       data: { onboarding: completed },
     });
 
+    // Enviar email en background
     setImmediate(() => {
       this.mailerService.sendEmail(
         user.email,
@@ -266,6 +268,6 @@ export class AuthService {
       );
     });
 
-    return user;
+    return updatedUser;
   }
 }
