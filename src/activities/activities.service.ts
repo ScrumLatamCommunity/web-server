@@ -82,7 +82,14 @@ export class ActivitiesService {
     }
 
     const activities = await this.prisma.activity.findMany({
-      where,
+      where: {
+        date: {
+          gte: new Date(),
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
     });
 
     return activities;
@@ -416,6 +423,9 @@ export class ActivitiesService {
         activities: {
           include: {
             users: true,
+          },
+          orderBy: {
+            date: 'desc',
           },
         },
       },
