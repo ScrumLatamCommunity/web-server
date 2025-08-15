@@ -465,18 +465,26 @@ export class SponsorsService {
     };
   }
 
-  async getPostsBySponsorId(sponsorId: string) {
+  async getOffersBySponsorId(sponsorId: string) {
+    if (!sponsorId || typeof sponsorId !== 'string') {
+      throw new BadRequestException('ID de sponsor inválido');
+    }
+
     const sponsor = await this.prisma.sponsorsData.findUnique({
       where: { id: sponsorId },
       include: {
-        posts: true,
+        offers: {
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
 
     if (!sponsor) {
-      throw new Error('Sponsor no encontrado');
+      throw new NotFoundException(`Sponsor con ID ${sponsorId} no encontrado`);
     }
 
-    return sponsor.posts;
+    return sponsor.offers;
   }
 }

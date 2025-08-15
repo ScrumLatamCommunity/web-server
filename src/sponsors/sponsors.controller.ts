@@ -177,8 +177,8 @@ export class SponsorsController {
     return this.sponsorsService.getAllCertificates();
   }
 
-  @Get(':id/posts')
-  async getPostsBySponsorId(@Param('id', ParseUUIDPipe) sponsorId: string) {
-    return this.sponsorsService.getPostsBySponsorId(sponsorId);
+  @Get(':id/offers')
+  async getOffersBySponsorId(@Param('id', ParseUUIDPipe) sponsorId: string) {
+    return this.sponsorsService.getOffersBySponsorId(sponsorId);
   }
 }
