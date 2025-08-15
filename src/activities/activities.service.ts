@@ -81,18 +81,29 @@ export class ActivitiesService {
       where.type = filterActivitiesDto.type;
     }
 
-    const activities = await this.prisma.activity.findMany({
-      where: {
-        date: {
-          gte: new Date(),
-        },
-      },
-      orderBy: {
-        date: 'asc',
-      },
-    });
+    // Obtener todas las actividades sin ordenamiento inicial
+    const activities = await this.prisma.activity.findMany({ where });
 
-    return activities;
+    // Aplicar ordenamiento manual si se solicita
+    if (filterActivitiesDto?.statusOrder) {
+      const targetStatus = filterActivitiesDto.statusOrder;
+      return activities.sort((a, b) => {  
+        const aIsTarget = a.status === targetStatus ? 1 : 0;
+        const bIsTarget = b.status === targetStatus ? 1 : 0;
+
+        if (aIsTarget !== bIsTarget) {
+          return bIsTarget - aIsTarget; // Descendente: 1 primero, 0 después
+        }
+
+        // 2. Ordenar por fecha descendente (más reciente primero)
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      });
+    }
+
+    // Ordenamiento por defecto: fecha ascendente
+    return activities.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
   }
 
   async findOneActivity(id: string) {
@@ -156,7 +167,7 @@ export class ActivitiesService {
   async rejectActivity(id: string) {
     const activity = await this.prisma.activity.update({
       where: { id },
-      data: { status: 'INACTIVE' },
+      data: { status: 'REJECTED' },
     });
     return activity;
   }

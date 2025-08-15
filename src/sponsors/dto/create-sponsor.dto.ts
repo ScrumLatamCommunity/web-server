@@ -8,6 +8,7 @@ import {
   ValidateNested,
   ArrayMaxSize,
   ArrayMinSize,
+  IsOptional,
 } from 'class-validator';
 import { Status } from '@prisma/client';
 import { CertificateDto } from './certificate.dto';
@@ -46,6 +47,7 @@ export class CreateSponsorDto {
   @ArrayMinSize(1)
   @ArrayMaxSize(3)
   @Type(() => SponsorDescriptionDto)
+  @IsOptional()
   descriptions: SponsorDescriptionDto[];
 
   @IsUrl()
