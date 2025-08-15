@@ -156,12 +156,11 @@ export class SponsorsController {
   @UseGuards(AuthGuard)
   @UseGuards(AuthGuard)
   @Patch('/switchOffertStatus/:id')
-  switchOffertStatus(@Param('id') id: string) {
-    try {
-      return this.sponsorsService.switchOffertStatus(id);
-    } catch (error) {
-      return new HttpException(error, HttpStatus.NOT_FOUND);
-    }
+  switchOffertStatus(
+    @Param('id') id: string,
+    @Body('status') status: 'ACTIVE' | 'INACTIVE',
+  ) {
+    return this.sponsorsService.switchOffertStatus(id, status);
   }
 
   @Patch('/remove-certificates/:id')
