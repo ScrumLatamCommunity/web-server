@@ -39,9 +39,11 @@ export class SponsorsService {
     });
 
     // 2. Crear descripciones
-    if (descriptions?.length) {
+    const descriptionsArray = Array.isArray(descriptions) ? descriptions : [];
+
+    if (descriptionsArray.length) {
       await this.prisma.sponsorDescription.createMany({
-        data: descriptions.map((desc) => ({
+        data: descriptionsArray.map((desc) => ({
           sponsorId: newSponsor.id,
           title: desc.title,
           description: desc.description,
@@ -402,22 +404,21 @@ export class SponsorsService {
     return foundPost;
   }
 
-  async switchOffertStatus(id: string) {
+  async switchOffertStatus(id: string, status: Status) {
     const foundOffert = await this.prisma.sponsorsOffert.findUnique({
       where: { id },
     });
+
     if (!foundOffert) {
-      return new HttpException('Offert not found', HttpStatus.NOT_FOUND);
-    } else if (foundOffert.status === Status.INACTIVE) {
-      foundOffert.status = Status.ACTIVE;
-    } else {
-      foundOffert.status = Status.INACTIVE;
+      throw new HttpException('Offert not found', HttpStatus.NOT_FOUND);
     }
-    await this.prisma.sponsorsOffert.update({
+
+    const updatedOffert = await this.prisma.sponsorsOffert.update({
       where: { id },
-      data: foundOffert,
+      data: { status },
     });
-    return foundOffert;
+
+    return updatedOffert;
   }
 
   async getAllCertificates() {
@@ -469,7 +470,7 @@ export class SponsorsService {
     const sponsor = await this.prisma.sponsorsData.findUnique({
       where: { id: sponsorId },
       include: {
-        posts: true,
+        offers: true,
       },
     });
 
@@ -477,6 +478,6 @@ export class SponsorsService {
       throw new Error('Sponsor no encontrado');
     }
 
-    return sponsor.posts;
+    return sponsor.offers;
   }
 }

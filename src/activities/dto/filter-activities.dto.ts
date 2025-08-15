@@ -10,4 +10,8 @@ export class FilterActivitiesDto {
   @IsOptional()
   @IsEnum(Type)
   type?: Type;
+
+  @IsOptional()
+  @IsEnum(Status)
+  statusOrder?: Type;
 }
