@@ -24,10 +24,14 @@ export class ActivitiesService {
   async checkInactives(activities) {
     const today = new Date();
 
-    const expiredActivities = activities.filter(
-      (activity) =>
-        new Date(activity.date) < today && activity.status === 'ACTIVE',
-    );
+    const expiredActivities = activities.filter((activity) => {
+      const activityDate = new Date(activity.date);
+
+      const expirationDate = new Date(activityDate);
+      expirationDate.setDate(expirationDate.getDate() + 1);
+
+      return expirationDate <= today && activity.status === 'ACTIVE';
+    });
 
     if (expiredActivities.length > 0) {
       await this.prisma.activity.updateMany({
