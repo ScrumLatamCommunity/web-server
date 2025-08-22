@@ -419,12 +419,12 @@ export class ActivitiesService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
+    console.log(user.firstName);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    // Obtener todas las actividades del usuario
     const userWithActivities = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
@@ -432,7 +432,7 @@ export class ActivitiesService {
           where: {
             status: 'ACTIVE',
             date: {
-              gte: new Date(new Date().setHours(0, 0, 0, 0)), // Reset a 00:00:00 para comparar solo fechas
+              gte: new Date(new Date().setHours(0, 0, 0, 0)),
             },
           },
           include: {
