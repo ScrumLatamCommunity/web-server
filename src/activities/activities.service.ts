@@ -23,14 +23,13 @@ export class ActivitiesService {
 
   async checkInactives(activities) {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const expiredActivities = activities.filter((activity) => {
       const activityDate = new Date(activity.date);
+      activityDate.setHours(0, 0, 0, 0);
 
-      const expirationDate = new Date(activityDate);
-      expirationDate.setDate(expirationDate.getDate() + 1);
-
-      return expirationDate <= today && activity.status === 'ACTIVE';
+      return activityDate < today && activity.status === 'ACTIVE';
     });
 
     if (expiredActivities.length > 0) {
@@ -65,13 +64,7 @@ export class ActivitiesService {
       where: activity,
     });
 
-    await this.checkInactives(activities);
-
-    const activeActivities = await this.prisma.activity.findMany({
-      where: { status: 'ACTIVE' },
-    });
-
-    return activeActivities;
+    return await this.checkInactives(activities);
   }
 
   async findAllActivities(filterActivitiesDto?: FilterActivitiesDto) {
@@ -91,7 +84,7 @@ export class ActivitiesService {
     // Aplicar ordenamiento manual si se solicita
     if (filterActivitiesDto?.statusOrder) {
       const targetStatus = filterActivitiesDto.statusOrder;
-      return activities.sort((a, b) => {  
+      return activities.sort((a, b) => {
         const aIsTarget = a.status === targetStatus ? 1 : 0;
         const bIsTarget = b.status === targetStatus ? 1 : 0;
 
@@ -439,7 +432,7 @@ export class ActivitiesService {
           where: {
             status: 'ACTIVE',
             date: {
-              gte: new Date(),
+              gte: new Date(new Date().setHours(0, 0, 0, 0)), // Reset a 00:00:00 para comparar solo fechas
             },
           },
           include: {
