@@ -33,10 +33,8 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const isPasswordValid = await bcrypt.compare(pass, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+    if (!(await bcrypt.compare(pass, user.password))) {
+      throw new UnauthorizedException();
     }
 
     // Obtener datos adicionales si es un sponsor
