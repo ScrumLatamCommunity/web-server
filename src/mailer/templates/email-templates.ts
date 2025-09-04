@@ -192,7 +192,7 @@ export const emailTemplates: Record<EmailTemplateType, EmailTemplate> = {
             <div style="background-color: white; border-radius: 0 0 10px 10px; padding: 30px; text-align: center;">
                 <p style="color: #666; margin-bottom: 15px;">¿Necesitas ayuda o tienes preguntas?</p>
                 <p style="color: #1d3557; font-weight: bold;">
-                    📧 <a href="mailto:scrumlatam@gmail.com" style="color: #1d3557;">scrumlatam@gmail.com</a>
+                    📧 <a href="mailto:scrumlatam@gmail.com" style="color: #1d3557;">scrums.latam@gmail.com</a>
                 </p>
                 
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
